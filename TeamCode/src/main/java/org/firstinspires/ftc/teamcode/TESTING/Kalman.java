@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.globals;
+import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
