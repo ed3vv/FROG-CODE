@@ -142,8 +142,8 @@ public class BLUE12FAR extends CommandOpMode {
             gate = new ServoEx(hardwareMap, "gate");
             gate.set(globals.gate.close);
 
-            turret1 = new ServoEx(hardwareMap, "t1", 0, 355);
-            turret2 = new ServoEx(hardwareMap, "t2", 0, 355);
+            turret1 = new ServoEx(hardwareMap, "t1", 0, 360);
+            turret2 = new ServoEx(hardwareMap, "t2", 0, 360);
 
             launcher1 = new MotorEx(hardwareMap, "l1", 28, 6000);
             launcher2 = new MotorEx(hardwareMap, "l2", 28, 6000);
@@ -174,8 +174,8 @@ public class BLUE12FAR extends CommandOpMode {
 
         public void setup(){
             hood.set(20);
-            turret1.set(20);
-            turret2.set(20);
+            turret1.set(288);
+            turret2.set(288);
         }
 
 
