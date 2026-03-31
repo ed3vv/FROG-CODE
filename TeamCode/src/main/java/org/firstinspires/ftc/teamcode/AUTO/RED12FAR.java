@@ -200,7 +200,7 @@ public class RED12FAR extends CommandOpMode {
 
         public void setup() {
             hood.set(200);
-            turret1.set(360-globals.turret.turretangle);//todo for red
+            turret1.set(360-globals.turret.turretangle);
             turret2.set(360-globals.turret.turretangle);
         }
 
