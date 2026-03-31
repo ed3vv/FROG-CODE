@@ -24,13 +24,15 @@ public class globals {
     public static class launcher {
 
 
-        public static float p =0.006F; //0.001
+        public static float p =0.0005F; //0.001
         public static float i = 0.1F;
         public static float d = 0F;
-        public static float ks = 0.001F; //0.0000216
-        public static float kv = 0.00018F; //0.000000120871
-        public static float velTime = 0.07F;
+        public static float ks = 0.067F; //0.0000216
+        public static float kv = 0.00017F; //0.000000120871
+        public static float velTime = 0.1F;
         public static float airSortThreshold = 20F;
+        public static float accelAlpha = 0.1F;
+        public static float targetRPM = 3000F;
 
     }
 
@@ -44,7 +46,8 @@ public class globals {
     public static class turret {
         public static float turretOffset = 0F;
         public static float goalY = 142;
-        public static float blueGoalX = 3;
+        public static float blueGoalX = 5;
+        public static float redGoalX = 1.5F;
         public static float goalX = 6;
         public static float closeGoalX = 0;
         public static float closeGoalY = 141.5F;
@@ -56,8 +59,12 @@ public class globals {
         public static float pCloseTele = 0.000006F;
         public static float pCloseAuto = 0.000006F; //0.0000035
 
+        public static float offset = 1.8F;
+
 
         public static float turretTarget = 0F;
+
+
 
     }
 
