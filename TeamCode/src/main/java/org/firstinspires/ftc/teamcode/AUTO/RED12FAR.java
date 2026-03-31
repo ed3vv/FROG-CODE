@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous
-public class BLUE12FAR extends CommandOpMode {
+public class RED12FAR extends CommandOpMode {
     private Follower follower;
     TelemetryData telemetryData = new TelemetryData(telemetry);
     private boolean scheduled = false;
@@ -37,90 +37,90 @@ public class BLUE12FAR extends CommandOpMode {
     public void buildpath(){
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(51.000, 9.000),
+                                new Pose(51.000, 9.000).mirror(),
 
-                                new Pose(11.000, 9.000)
+                                new Pose(11.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
+                                new Pose(11.000, 9.000).mirror(),
 
-                                new Pose(51.000, 9.000)
+                                new Pose(51.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(51.000, 9.000),
+                                new Pose(51.000, 9.000).mirror(),
 
-                                new Pose(42.500, 35.500)
+                                new Pose(42.500, 35.500).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(42.500, 35.500),
+                                new Pose(42.500, 35.500).mirror(),
 
-                                new Pose(20.000, 35.500)
+                                new Pose(20.000, 35.500).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(20.000, 35.500),
+                                new Pose(20.000, 35.500).mirror(),
 
-                                new Pose(51.000, 9.000)
+                                new Pose(51.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(51.000, 9.000),
+                                new Pose(51.000, 9.000).mirror(),
 
-                                new Pose(42.500, 60.000)
+                                new Pose(42.500, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(42.500, 60.000),
+                                new Pose(42.500, 60.000).mirror(),
 
-                                new Pose(20.000, 60.000)
+                                new Pose(20.000, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(20.000, 60.000),
+                                new Pose(20.000, 60.000).mirror(),
 
-                                new Pose(51.000, 9.000)
+                                new Pose(51.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(51.000, 9.000),
+                                new Pose(51.000, 9.000).mirror(),
 
-                                new Pose(35.000, 9.000)
+                                new Pose(35.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
     }
@@ -200,8 +200,8 @@ public class BLUE12FAR extends CommandOpMode {
 
         public void setup() {
             hood.set(200);
-            turret1.set(globals.turret.turretangle);
-            turret2.set(globals.turret.turretangle);
+            turret1.set(360-globals.turret.turretangle);//todo for red
+            turret2.set(360-globals.turret.turretangle);
         }
 
         public void RPM() {
@@ -266,7 +266,6 @@ public class BLUE12FAR extends CommandOpMode {
         public void end(boolean interrupted){
             everythingsubsystem.launchfinish();
         }
-        //TODO ADD LAUNCH
     }
 
     @Override
@@ -282,7 +281,7 @@ public class BLUE12FAR extends CommandOpMode {
         }
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(51, 9, Math.toRadians(180)));//TODO
+        follower.setStartingPose(new Pose(51, 9, Math.toRadians(180)).mirror());//TODO
 
         buildpath();
 
@@ -296,7 +295,7 @@ public class BLUE12FAR extends CommandOpMode {
                                 new FollowPathCommand(follower, Path1),
                                 new WaitCommand(500),
                                 new FollowPathCommand(follower, Path2)
-                                ),
+                        ),
                         new froggyeat(everythingsubsystem)
                 ),
                 new ParallelDeadlineGroup(
@@ -324,7 +323,6 @@ public class BLUE12FAR extends CommandOpMode {
                         new froggyspit(everythingsubsystem)
                 ),
                 new FollowPathCommand(follower, Path9)
-
         );
     }
 
@@ -339,3 +337,4 @@ public class BLUE12FAR extends CommandOpMode {
     }
 
 }
+

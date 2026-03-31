@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TELE;
+package org.firstinspires.ftc.teamcode.TELEOP;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -134,9 +134,7 @@ public class SummitAI extends OpMode {
         g1 = new GamepadEx(gamepad1);
         launchPIDF.setTolerance(50);
 
-        follower = Constants.createFollower(hardwareMap);
-        follower.startTeleopDrive(true);
-        follower.setStartingPose(new Pose (8, 8)); //TEMPORARY
+         //TEMPORARY
 
 
         while (timer.seconds() < 1) {
@@ -146,6 +144,10 @@ public class SummitAI extends OpMode {
 
         timer.reset();
         timer.startTime();
+
+        follower = Constants.createFollower(hardwareMap);
+        follower.startTeleopDrive(true);
+        follower.setStartingPose(new Pose (8, 8));
 
 
 

@@ -65,7 +65,7 @@ public class globals {
         public static float turretTarget = 0F;
 
 
-
+        public static float turretangle = 300F;
     }
 
 
