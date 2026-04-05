@@ -181,14 +181,14 @@ public class BLUE12FAR extends CommandOpMode {
         }
 
         public void launch(){
-            launchPID.setSetPoint(4500);
+            launchPID.setSetPoint(4400);
             launchPower = launchPID.calculate(RPM);
             if (RPM < 400) {
                 launcher1.set(0.55);
                 launcher2.set(0.55);
             } else {
-                launcher1.set(launchPower + globals.launcher.kv * 4500 + globals.launcher.ks);
-                launcher2.set(launchPower + globals.launcher.kv * 4500 + globals.launcher.ks);
+                launcher1.set(launchPower + globals.launcher.kv * 4400 + globals.launcher.ks);
+                launcher2.set(launchPower + globals.launcher.kv * 4400 + globals.launcher.ks);
             }
 
             if (launchPID.atSetPoint()){
@@ -199,7 +199,7 @@ public class BLUE12FAR extends CommandOpMode {
         }
 
         public void setup() {
-            hood.set(200);
+            hood.set(193);
             turret1.set(globals.turret.turretangle);
             turret2.set(globals.turret.turretangle);
         }

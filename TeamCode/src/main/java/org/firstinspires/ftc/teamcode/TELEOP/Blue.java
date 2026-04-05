@@ -26,40 +26,42 @@ import com.skeletonarmy.marrow.zones.Point;
 import com.skeletonarmy.marrow.zones.PolygonZone;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 
 import java.util.List;
 import java.util.Objects;
 
-@TeleOp(name = "SummitAI")
-public class SummitAI extends OpMode {
+@TeleOp (name = "Blue")
+public class Blue extends OpMode {
     private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
     private final PolygonZone farLaunchZone = new PolygonZone(new Point(48, 0), new Point(72, 24), new Point(96, 0));
     private final PolygonZone robotZone = new PolygonZone(17, 17);
+    private double offset;
 
     private Motor l1, l2, intake, transfer;
     private ServoEx hood, gate, tiltl, tiltr, lights;
     private ServoEx t1, t2;
+    private PIDController turretPIDF = new PIDController(globals.turret.pFarTele, globals.turret.i, globals.turret.d);
     private AnalogInput turretEncoder;
-    private GamepadEx g1;
+    private GamepadEx g1, g2;
     private Follower follower;
     private PIDController launchPIDF = new PIDController(globals.launcher.p, globals.launcher.i, globals.launcher.d);
     private ElapsedTime timer = new ElapsedTime();
-
+    double previousSet;
     private enum launchMode {
         SOTM,
         normal
     } private launchMode currentLaunchMode = launchMode.normal;
-    private enum launchState {
+    private enum intakeState {
         idle,
         intaking,
         launching
 
-    } private launchState currentLaunchState = launchState.idle;
+    } private intakeState currentIntakeState = intakeState.idle;
     private String robotLocation = "No Zone";
 
-    private double offset = 0;
+
     private double lastTime, launchPower, RPM, previousRPM, dist, turretAng, targetRPM, hoodAngle, leftY, leftX, turretPower;
     private double turretPos = 0F;
     private int lastPosition;
@@ -76,18 +78,24 @@ public class SummitAI extends OpMode {
     );
 
     private double xEst = 0, yEst = 0, hEst = 0;   // odometry estimate
+    private double pX = globals.kalman.pX0, pY = globals.kalman.pY0, pH = globals.pHg; // odometry error
+
+    private static final double M_TO_IN = 39.37007874015748;
+
+    private Pose fusedPose = new Pose(0, 0, 0);
+    private Pose odoPose = new Pose(0, 0, 0);
+    private double zH=0.0;
 
     private boolean zapLeon = false, leftBumper = false, rightBumper = false;
     private ElapsedTime relocTimer = new ElapsedTime();
+    private boolean relocReady = false;
+    private double initialTurretOffset = 0F;
     private double filteredAccelMag = 0;
     private double filteredAccelAngle = 0F;
     private Limelight3A limelight;
     private FtcDashboard dashboard;
-
-
     @Override
     public void init() {
-
         relocTimer.startTime();
         timer.startTime();
         GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
@@ -132,9 +140,12 @@ public class SummitAI extends OpMode {
         hood = new ServoEx(hardwareMap, "hood", 300);
 
         g1 = new GamepadEx(gamepad1);
-        launchPIDF.setTolerance(50);
+        g2 = new GamepadEx(gamepad2);
+        launchPIDF.setTolerance(75);
 
-         //TEMPORARY
+        follower = Constants.createFollower(hardwareMap);
+        follower.startTeleopDrive(true);
+        follower.setStartingPose(globals.states.autoEndPose); //TEMPORARY
 
 
         while (timer.seconds() < 1) {
@@ -145,91 +156,99 @@ public class SummitAI extends OpMode {
         timer.reset();
         timer.startTime();
 
-        follower = Constants.createFollower(hardwareMap);
-        follower.startTeleopDrive(true);
-        follower.setStartingPose(globals.states.autoEndPose);
-
-
+        // Initialize estimate to odometry so don't start at 0,0,0
+        Pose p = follower.getPose();
+        if (p != null) {
+            xEst = p.getX();
+            yEst = p.getY();
+            hEst = p.getHeading();
+            fusedPose = new Pose(xEst, yEst, hEst);
+            odoPose = p;
+        }
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(20);
         limelight.pipelineSwitch(0);
         limelight.start();
-        turretZeroOffset = Math.abs(turretEncoder.getVoltage()) < 0.005 ? 0 : (degresToTicks(voltageToDegrees(turretEncoder.getVoltage() - 1.6)) * 2) + globals.turret.turretOffset;
         tiltl.set(0.83);
         tiltr.set(0.17);
 
 
         dashboard = FtcDashboard.getInstance();
         dashboard.startCameraStream(limelight, 30);
-
     }
 
     @Override
     public void loop() {
-        follower.update();
-        RPM();
-        launchCalc();
         drive();
-        launch();
-        drawRobot(follower.getPose(), robotLook);
-        turretAim();
-
         telemetry();
-        globals.states.autoEndPose = follower.getPose();
-
+        launch();
+        launchCalc();
+        follower.update();
+        turretAim();
+        drawRobot(follower.getPose(), robotLook);
+        panelsField.update();
+        RPM();
     }
-
     private void telemetry() {
-        telemetry.addData("distance", dist);
         telemetry.addData("autoaim", autoAim);
         telemetry.addData("robotLocation", robotLocation);
-
-
+        telemetry.addData("distance", dist);
         TelemetryPacket ang = new TelemetryPacket();
         ang.put("target", globals.launcher.targetRPM);
 
         TelemetryPacket fang = new TelemetryPacket();
         fang.put("rpm", RPM);
 
-        TelemetryPacket mag = new TelemetryPacket();
-        mag.put("mag", follower.getAcceleration().getMagnitude());
-
-        TelemetryPacket fmag = new TelemetryPacket();
-        fmag.put("fmag", filteredAccelMag);
-
-        TelemetryPacket distance = new TelemetryPacket();
-        distance.put("dist", dist);
-
         FtcDashboard.getInstance().sendTelemetryPacket(ang);
         FtcDashboard.getInstance().sendTelemetryPacket(fang);
-        FtcDashboard.getInstance().sendTelemetryPacket(distance);
 
-        FtcDashboard.getInstance().sendTelemetryPacket(mag);
-        FtcDashboard.getInstance().sendTelemetryPacket(fmag);
+
 
 
         telemetry.update();
     }
 
     private void launch() {
-
-
+        boolean RPMDip = RPM - previousRPM > 100;
         launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
-        if (g1.getButton(GamepadKeys.Button.CROSS)) {
-            currentLaunchState = launchState.launching;
-        } else if (g1.getButton(GamepadKeys.Button.TRIANGLE)) {
-            currentLaunchState = launchState.intaking;
+
+        if ((g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) && !g2.getButton(GamepadKeys.Button.DPAD_UP)) {
+            currentIntakeState = intakeState.intaking;
+        } else if (g2.getButton(GamepadKeys.Button.DPAD_UP) && launchPIDF.atSetPoint() && !robotLocation.equals("No Zone")){
+            currentIntakeState = intakeState.launching;
         } else {
-            currentLaunchState = launchState.idle;
+            currentIntakeState = intakeState.idle;
         }
 
-        switch (currentLaunchState) {
+        if (g2.getButton(GamepadKeys.Button.CROSS)) {
+            launchPIDF.setSetPoint(targetRPM);
+            launchPower = launchPIDF.calculate(RPM);
+            if (RPM < 400) {
+                l1.set(0.6);
+                l2.set(0.6);
+            }else if (RPMDip){
+                l1.set(1);
+                l2.set(1);
+            }else {
+                l1.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                l2.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+            }
+
+            if (launchPIDF.atSetPoint()) {
+                lights.set(0.5);
+            } else {
+                lights.set(0.33);
+            }
+        } else {
+            l1.set(0);
+            l2.set(0);
+            lights.set(0);
+        }
+        switch (currentIntakeState) {
 
             case idle:
                 ballsLaunched = 0;
-                l1.set(0);
-                l2.set(0);
                 intake.set(0);
                 transfer.set(0);
                 gate.set(globals.gate.close);
@@ -237,25 +256,15 @@ public class SummitAI extends OpMode {
 
             case launching:
 
-                launchPIDF.setSetPoint(targetRPM);
-                launchPower = launchPIDF.calculate(RPM);
-                if (RPM < 400) {
-                    l1.set(0.55);
-                    l2.set(0.55);
-                } else {
-                    l1.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
-                    l2.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
-                }
-
                 hood.set(MathFunctions.clamp(hoodAngle, 0, 300));
-                if (launchPIDF.atSetPoint() && turretInRange) {
+                if (turretInRange) {
                     gate.set(globals.gate.open);
                     if (Objects.equals(robotLocation, "Far Zone")) {
-                        intake.set(.6);
-                        transfer.set(0.6);
+                        intake.set(.7);
+                        transfer.set(0.7);
                     } else {
-                        intake.set(0.8);
-                        transfer.set(0.8);
+                        intake.set(1);
+                        transfer.set(1);
                     }
                 }
                 break;
@@ -268,19 +277,15 @@ public class SummitAI extends OpMode {
     }
 
     private void launchCalc() {
-        if (robotZone.isInside(closeLaunchZone) || robotZone.isInside(farLaunchZone)) {
-            lights.set(0.5);
-        } else {
-            lights.set(0);
-        }
+        double distanceDiff;
 
         double x = follower.getPose().getX();
         double y = follower.getPose().getY();
         Pose robot = new Pose(x, y);
         robotZone.setPosition(x, y);
         robotZone.setRotation(follower.getPose().getHeading());
-        Pose goal = new Pose(142 - globals.turret.goalX, globals.turret.goalY);
-        if (follower.getVelocity().getMagnitude() < 10 || robotZone.isInside(farLaunchZone)) {
+        Pose goal = new Pose(globals.turret.goalX, globals.turret.goalY);
+        if (follower.getVelocity().getMagnitude() < 7) {
             currentLaunchMode = launchMode.normal;
         } else {
             currentLaunchMode = launchMode.SOTM;
@@ -295,9 +300,14 @@ public class SummitAI extends OpMode {
                 double accelAngle = follower.getAcceleration().getTheta();
                 filteredAccelAngle = globals.launcher.accelAlpha * accelAngle + (1-globals.launcher.accelAlpha) * filteredAccelAngle;
 
-                Vector accel = new Vector(accelMag, accelAngle);
+                Vector accel = new Vector(filteredAccelMag, filteredAccelAngle); // calculate acceleration rounded to nearest inch/s, nearest degree (in inch/s^2, rad)
                 Vector velocity = follower.getVelocity().plus(new Vector(accel.getMagnitude() * globals.launcher.velTime, accel.getTheta())); // create a velocity vector by using v = u + at
-                double distanceDiff = velocity.getMagnitude() * (0.0025 * dist + 0.1); //calculate distance by using an expiremental relation of distance vs time
+
+                if (robotZone.isInside(closeLaunchZone)) {
+                    distanceDiff = velocity.getMagnitude() * (0.0025 * dist + 0.3871); //calculate distance by using an expiremental relation of distance vs time
+                } else {
+                    distanceDiff = velocity.getMagnitude() * (0.0025 * dist + 0.3871); //calculate distance by using an expiremental relation of distance vs time
+                }
                 Vector robotVelocity = new Vector(distanceDiff, velocity.getTheta());
                 Pose newGoal = new Pose(-robotVelocity.getXComponent() + goal.getX(), -robotVelocity.getYComponent() + goal.getY());
 
@@ -317,24 +327,44 @@ public class SummitAI extends OpMode {
                 break;
         }
 
+        if (robotZone.isInside(closeLaunchZone)) {
 
-        targetRPM = (19.879* dist + 1691.5) * 0.98 ;
-        if (dist > 40) {
-            hoodAngle = 156.75 * Math.log(dist) - 562.97 - 20;
-        } else if (dist <= 40) {
-            hoodAngle = 0;
+            robotLocation = "Close Zone";
+        } else if (robotZone.isInside(farLaunchZone)) {
+
+            robotLocation = "Far Zone";
+        } else {
+
+            robotLocation = "No Zone";
         }
+
+        targetRPM = globals.launcher.targetRPM;
+        hoodAngle = globals.launcher.ang;
 
 
 
     }
-
     private void turretAim() {
         if (Math.abs(turretAng) > 150) {
             turretAng = 0;
             turretInRange = false;
         } else  {
             turretInRange = true;
+        }
+
+
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            if (result.getStaleness() < 500) {
+                List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
+                if (!tags.isEmpty()) {
+                    for (LLResultTypes.FiducialResult tag : tags) {
+                        dist = tag.getTargetXDegrees();
+                        telemetry.addData("dist", dist);
+
+                    }
+                }
+            }
         }
 
         if (g1.getButton(GamepadKeys.Button.RIGHT_BUMPER) && !prevTriggerR) {
@@ -345,35 +375,12 @@ public class SummitAI extends OpMode {
 
         prevTriggerR = g1.getButton(GamepadKeys.Button.RIGHT_BUMPER);
         prevTriggerL = g1.getButton(GamepadKeys.Button.LEFT_BUMPER);
-
-
-
-        LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
-            if (result.getStaleness() < 500) {
-                List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
-                if (!tags.isEmpty()) {
-                    for (LLResultTypes.FiducialResult tag : tags) {
-                        double distance = tag.getTargetXDegrees();
-                        telemetry.addData("dist", distance);
-
-                    }
-                }
-            }
-        }
-
-
         double set = MathFunctions.clamp( 180 + (turretAng * 3.2)/2, 0, 360);
         t1.set(set + offset);
         t2.set(set + offset);
-    }
-    private double degresToTicks(double degree) {
-        return (degree * 8192) / 360;
+
     }
 
-    private double voltageToDegrees(double volts) {
-        return ((volts) * 360) / 3.2 ;
-    }
 
     private void drive() {
         leftX = g1.getLeftX();
@@ -406,20 +413,19 @@ public class SummitAI extends OpMode {
 
 
 
-        if (g1.getButton(GamepadKeys.Button.CIRCLE) && !prevCross1) {
+        if (g1.getButton(GamepadKeys.Button.CROSS) && !prevCross1) {
             slowDrive = !slowDrive;
-        } prevCross1 = g1.getButton(GamepadKeys.Button.CIRCLE);
+        } prevCross1 = g1.getButton(GamepadKeys.Button.CROSS);
 
         if (slowDrive) {
-            follower.setMaxPower(0.5);
+            follower.setMaxPower(0.6);
         } else {
             follower.setMaxPower(1);
         }
 
-        follower.setTeleOpDrive(leftY, -leftX, 0.5 * (g1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), true);
+        follower.setTeleOpDrive(leftY, -leftX, 0.75 * (g1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), true);
 
     }
-
     public void RPM() {
         double currentTime = getRuntime();
         int currentPosition = l2.getCurrentPosition();
@@ -436,7 +442,6 @@ public class SummitAI extends OpMode {
             lastPosition = currentPosition;
         }
     }
-
 
 
     public void drawRobot(Pose pose, Style style) {
@@ -461,4 +466,5 @@ public class SummitAI extends OpMode {
         panelsField.line(x2, y2);
         panelsField.update();
     }
+
 }

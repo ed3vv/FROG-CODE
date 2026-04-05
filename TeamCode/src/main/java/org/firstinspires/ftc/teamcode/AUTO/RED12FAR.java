@@ -161,7 +161,7 @@ public class RED12FAR extends CommandOpMode {
 
             hood = new ServoEx(hardwareMap, "hood", 300);
 
-            launchPID.setTolerance(50);
+            launchPID.setTolerance(75);
         }
 
         public void intakestart(){
@@ -181,14 +181,14 @@ public class RED12FAR extends CommandOpMode {
         }
 
         public void launch(){
-            launchPID.setSetPoint(4500);
+            launchPID.setSetPoint(4100);
             launchPower = launchPID.calculate(RPM);
             if (RPM < 400) {
                 launcher1.set(0.55);
                 launcher2.set(0.55);
             } else {
-                launcher1.set(launchPower + globals.launcher.kv * 4500 + globals.launcher.ks);
-                launcher2.set(launchPower + globals.launcher.kv * 4500 + globals.launcher.ks);
+                launcher1.set(launchPower + globals.launcher.kv * 4100 + globals.launcher.ks);
+                launcher2.set(launchPower + globals.launcher.kv * 4100 + globals.launcher.ks);
             }
 
             if (launchPID.atSetPoint()){
@@ -199,7 +199,7 @@ public class RED12FAR extends CommandOpMode {
         }
 
         public void setup() {
-            hood.set(200);
+            hood.set(160);
             turret1.set(360-globals.turret.turretangle);
             turret2.set(360-globals.turret.turretangle);
         }
@@ -332,6 +332,7 @@ public class RED12FAR extends CommandOpMode {
             schedule(froggyroute);
             scheduled = true;
         }
+        globals.states.autoEndPose = follower.getPose();
         super.run();
         follower.update();
     }
