@@ -210,7 +210,7 @@ public class Blue extends OpMode {
     }
 
     private void launch() {
-        boolean RPMDip = RPM - previousRPM > 100;
+        boolean RPMDip = RPM - previousRPM > 150;
         launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
 
         if ((g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) && !g2.getButton(GamepadKeys.Button.DPAD_UP)) {
@@ -302,12 +302,8 @@ public class Blue extends OpMode {
 
                 Vector accel = new Vector(filteredAccelMag, filteredAccelAngle); // calculate acceleration rounded to nearest inch/s, nearest degree (in inch/s^2, rad)
                 Vector velocity = follower.getVelocity().plus(new Vector(accel.getMagnitude() * globals.launcher.velTime, accel.getTheta())); // create a velocity vector by using v = u + at
+                distanceDiff = velocity.getMagnitude() * (0.0025 * dist + 0.43); //calculate distance by using an expiremental relation of distance vs time
 
-                if (robotZone.isInside(closeLaunchZone)) {
-                    distanceDiff = velocity.getMagnitude() * (0.0025 * dist + 0.3871); //calculate distance by using an expiremental relation of distance vs time
-                } else {
-                    distanceDiff = velocity.getMagnitude() * (0.0025 * dist + 0.3871); //calculate distance by using an expiremental relation of distance vs time
-                }
                 Vector robotVelocity = new Vector(distanceDiff, velocity.getTheta());
                 Pose newGoal = new Pose(-robotVelocity.getXComponent() + goal.getX(), -robotVelocity.getYComponent() + goal.getY());
 
