@@ -292,7 +292,60 @@ public class RED18CLOSE extends CommandOpMode {
         buildpath();
 
 
-        //TODO FROGGYROUTE
+        froggyroute = new SequentialCommandGroup(
+                new FollowPathCommand(follower, Path1),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path2),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path3),
+                        new froggyeat(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path4),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path5),
+                        new froggyeat(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path6),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path7),
+                        new froggyeat(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path8),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path9),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path10),
+                        new froggyeat(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path11),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path12),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path13),
+                        new froggyeat(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path14),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
+                )
+
+        );
+
+
 
     }
 
