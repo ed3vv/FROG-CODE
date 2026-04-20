@@ -68,7 +68,7 @@ public class Blue extends OpMode {
     private boolean prevCross1, prevOptions2, prevTriggerR, prevTriggerL;
     private boolean autoAim = true;
     private boolean slowDrive = false;
-    private boolean turretZeroed = false, turretInRange;
+    private boolean turretInRange;
     private int ballsLaunched = 0;
     private double turretZeroOffset;
 
@@ -96,7 +96,6 @@ public class Blue extends OpMode {
     private FtcDashboard dashboard;
     @Override
     public void init() {
-        relocTimer.startTime();
         timer.startTime();
         GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.resetPosAndIMU();
@@ -105,7 +104,6 @@ public class Blue extends OpMode {
         t2 = new ServoEx(hardwareMap, "t2", 360);
         t2.setInverted(true);
         t1.setInverted(true);
-        turretEncoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
 
         l1 = new Motor(hardwareMap, "l1", 28, 6000);
         l2 = new Motor(hardwareMap, "l2", 28, 6000);
@@ -141,12 +139,12 @@ public class Blue extends OpMode {
 
         g1 = new GamepadEx(gamepad1);
         g2 = new GamepadEx(gamepad2);
-        launchPIDF.setTolerance(75);
+        launchPIDF.setTolerance(100);
 
         follower = Constants.createFollower(hardwareMap);
         follower.startTeleopDrive(true);
-        follower.setStartingPose(globals.states.autoEndPose); //TEMPORARY
-
+//        follower.setStartingPose(globals.states.autoEndPose); //TEMPORARY
+        follower.setStartingPose(new Pose(60, 84, Math.PI/2));
 
         while (timer.seconds() < 1) {
             telemetry.addData("timer", timer.seconds());
@@ -156,22 +154,12 @@ public class Blue extends OpMode {
         timer.reset();
         timer.startTime();
 
-        // Initialize estimate to odometry so don't start at 0,0,0
-        Pose p = follower.getPose();
-        if (p != null) {
-            xEst = p.getX();
-            yEst = p.getY();
-            hEst = p.getHeading();
-            fusedPose = new Pose(xEst, yEst, hEst);
-            odoPose = p;
-        }
-
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(20);
+        limelight.setPollRateHz(85);
         limelight.pipelineSwitch(0);
         limelight.start();
-        tiltl.set(0.83);
-        tiltr.set(0.17);
+//        tiltl.set(0.83);
+//        tiltr.set(0.17);
 
 
         dashboard = FtcDashboard.getInstance();
@@ -212,11 +200,12 @@ public class Blue extends OpMode {
     private void launch() {
         boolean RPMDip = RPM - previousRPM > 150;
         launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
+        boolean launchReady = launchPIDF.atSetPoint() && !robotLocation.equals("No Zone") && turretInRange;
 
-        if ((g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) && !g2.getButton(GamepadKeys.Button.DPAD_UP)) {
-            currentIntakeState = intakeState.intaking;
-        } else if (g2.getButton(GamepadKeys.Button.DPAD_UP) && launchPIDF.atSetPoint() && !robotLocation.equals("No Zone")){
+        if (g2.getButton(GamepadKeys.Button.DPAD_UP) && launchReady) {
             currentIntakeState = intakeState.launching;
+        } else if (g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
+            currentIntakeState = intakeState.intaking;
         } else {
             currentIntakeState = intakeState.idle;
         }
@@ -245,6 +234,8 @@ public class Blue extends OpMode {
             l2.set(0);
             lights.set(0);
         }
+
+
         switch (currentIntakeState) {
 
             case idle:
@@ -284,8 +275,8 @@ public class Blue extends OpMode {
         Pose robot = new Pose(x, y);
         robotZone.setPosition(x, y);
         robotZone.setRotation(follower.getPose().getHeading());
-        Pose goal = new Pose(globals.turret.goalX, globals.turret.goalY);
-        if (follower.getVelocity().getMagnitude() < 7) {
+        Pose goal = new Pose(globals.turret.goalX,  144- globals.turret.goalY);
+        if (follower.getVelocity().getMagnitude() < 10) {
             currentLaunchMode = launchMode.normal;
         } else {
             currentLaunchMode = launchMode.SOTM;
@@ -371,9 +362,9 @@ public class Blue extends OpMode {
 
         prevTriggerR = g1.getButton(GamepadKeys.Button.RIGHT_BUMPER);
         prevTriggerL = g1.getButton(GamepadKeys.Button.LEFT_BUMPER);
-        double set = MathFunctions.clamp( 180 + (turretAng * 3.2)/2, 0, 360);
-        t1.set(set + offset);
-        t2.set(set + offset);
+        double set = MathFunctions.clamp( 180 - turretAng - offset, 0, 360);
+        t1.set(set);
+        t2.set(set);
 
     }
 

@@ -40,8 +40,8 @@ public class globals {
 
     @Config
     public static class gate {
-        public static float close = 0F; //
-        public static float open = 0.6F;
+        public static float close = 0.25F; //
+        public static float open = 0.8F;
     }
 
     @Config
