@@ -56,7 +56,8 @@ public class Blue extends OpMode {
     private enum intakeState {
         idle,
         intaking,
-        launching
+        launching,
+        eject
 
     } private intakeState currentIntakeState = intakeState.idle;
     private String robotLocation = "No Zone";
@@ -88,6 +89,8 @@ public class Blue extends OpMode {
     private double camTimer;
 
     private boolean camTimerReset = false;
+    private boolean turretAligned;
+    private boolean rumble2;
 
     @Override
     public void init() {
@@ -198,8 +201,8 @@ public class Blue extends OpMode {
 
         telemetry.update();
     }
-
     private void launch() {
+
         boolean RPMDip = RPM - previousRPM > 150;
         launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
         boolean launchReady = launchPIDF.atSetPoint() && !robotLocation.equals("No Zone") && turretInRange && RPM > 500;
@@ -207,8 +210,13 @@ public class Blue extends OpMode {
         if (g2.getButton(GamepadKeys.Button.DPAD_UP) && launchReady) {
             currentIntakeState = intakeState.launching;
         } else if (g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
+            //for Ollie
+            //if (g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.4 || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
             currentIntakeState = intakeState.intaking;
-        } else {
+        } else if (g1.getButton(GamepadKeys.Button.SQUARE) || g2.getButton(GamepadKeys.Button.SQUARE)) {
+            currentIntakeState = intakeState.eject;
+        }else {
+
             currentIntakeState = intakeState.idle;
         }
 
@@ -264,6 +272,10 @@ public class Blue extends OpMode {
                 intake.set(-0.75);
                 transfer.set(-1);
                 gate.set(globals.gate.close);
+                break;
+            case eject:
+                intake.set(0.5);
+                transfer.set(0.5);
                 break;
         }
     }
@@ -373,9 +385,9 @@ public class Blue extends OpMode {
 
     private void sensory() {
         if (!robotLocation.equals("No Zone")) {
-            currentmode = lightmode.blink;
-        } else {
             currentmode = lightmode.solid;
+        } else {
+            currentmode = lightmode.blink;
         }
         double currentTime = timer.seconds();
         if (currentIntakeState.equals(intakeState.intaking)) {
@@ -425,6 +437,28 @@ public class Blue extends OpMode {
                 lights.set(0);
             }
 
+        turretAligned = false;
+        if (tagReady) {
+            if (robotZone.isInside(closeLaunchZone)) {
+                if (Math.abs(tagAng) < 5) {
+                    turretAligned = true;
+                }
+            } else if (robotZone.isInside(farLaunchZone)) {
+                if (Math.abs(tagAng) < 2) {
+                    turretAligned = true;
+                }
+            }
+        }
+
+
+        if (turretAligned && !rumble2) {
+            gamepad2.rumble(0.6, 0.6, 200);
+            rumble2 = true;
+        }
+
+        if (!turretAligned && rumble2) {
+            rumble2 = false;
+        }
 
 
 
@@ -473,6 +507,8 @@ public class Blue extends OpMode {
         }
 
         follower.setTeleOpDrive(leftY, -leftX, 0.75 * (g1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), true);
+        // for ollie:
+        //follower.setTeleOpDrive(leftY, -leftX, g1.getRightX(), true);
 
     }
     public void RPM() {
