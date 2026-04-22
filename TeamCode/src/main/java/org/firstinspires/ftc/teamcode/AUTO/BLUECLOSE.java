@@ -13,7 +13,6 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
@@ -36,7 +35,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import java.util.List;
 
 @Autonomous
-public class BLUEAUTOTEMPLATE extends CommandOpMode {
+public class BLUECLOSE extends CommandOpMode {
     private static Follower follower;
     TelemetryData telemetryData = new TelemetryData(telemetry);
     private boolean scheduled = false;
@@ -91,10 +90,10 @@ public class BLUEAUTOTEMPLATE extends CommandOpMode {
         public ServoEx turret1, turret2, hood;
         public MotorEx launcher1, launcher2;
         private Limelight3A limelight;
+
         private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
         private final PolygonZone robotZone = new PolygonZone(17, 17);
-        public boolean tagReady = false, turretInRange, camTimerReset = false, robotinZone = false, initialized = false;
-        private ElapsedTime timer = new ElapsedTime();
+        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false;
         public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer;
 
         public OuttakeSubsystem(HardwareMap hardwareMap) {
@@ -108,6 +107,16 @@ public class BLUEAUTOTEMPLATE extends CommandOpMode {
             limelight.pipelineSwitch(0);
             limelight.start();
 
+            launcher1 = new MotorEx(hardwareMap, "l1", 28, 6000);
+            launcher2 = new MotorEx(hardwareMap, "l2", 28, 6000);
+            launcher1.setRunMode(Motor.RunMode.RawPower);
+            launcher2.setRunMode(Motor.RunMode.RawPower);
+            launcher2.setInverted(true);
+            launcher1.setInverted(false);
+            launcher1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+            launcher2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+
+            hood = new ServoEx(hardwareMap, "hood", 300);
         }
 
         public void setTurret() {
@@ -160,25 +169,25 @@ public class BLUEAUTOTEMPLATE extends CommandOpMode {
         }
 
         private void updateRPM() {
-                double currentTime = System.nanoTime() / 1_000_000_000.0;
-                int currentPosition = launcher2.getCurrentPosition();
+            double currentTime = System.nanoTime() / 1_000_000_000.0;
+            int currentPosition = launcher2.getCurrentPosition();
 
-                if (!initialized) {
-                    lastTime = currentTime;
-                    lastPosition = currentPosition;
-                    initialized = true;
-                    return;
-                }
+            if (!initialized) {
+                lastTime = currentTime;
+                lastPosition = currentPosition;
+                initialized = true;
+                return;
+            }
 
-                double deltaTime = currentTime - lastTime;
-                double deltaTicks = currentPosition - lastPosition;
+            double deltaTime = currentTime - lastTime;
+            double deltaTicks = currentPosition - lastPosition;
 
-                if (deltaTime > 0.02) {
-                    double revs = deltaTicks / 28.0;
-                    RPM = -(revs / deltaTime) * 60.0;
-                    lastTime = currentTime;
-                    lastPosition = currentPosition;
-                }
+            if (deltaTime > 0.02) {
+                double revs = deltaTicks / 28.0;
+                RPM = -(revs / deltaTime) * 60.0;
+                lastTime = currentTime;
+                lastPosition = currentPosition;
+            }
         }
 
         private void launchCalc() {
@@ -196,7 +205,6 @@ public class BLUEAUTOTEMPLATE extends CommandOpMode {
             turretAng = Math.toDegrees(AngleUnit.normalizeRadians(follower.getHeading() - goalAngle));
             dist = robotToGoal.getMagnitude();
 
-
             if (robotZone.isInside(closeLaunchZone)) {
                 robotinZone = true;
             }
@@ -207,9 +215,8 @@ public class BLUEAUTOTEMPLATE extends CommandOpMode {
 
         @Override
         public void periodic() {
-                updateRPM();
-                launchCalc();
-        }
+            updateRPM();
+            launchCalc();}
     }
 
     //COMMANDS///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
