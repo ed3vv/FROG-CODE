@@ -56,8 +56,7 @@ public class Blue extends OpMode {
     private enum intakeState {
         idle,
         intaking,
-        launching,
-        eject
+        launching
 
     } private intakeState currentIntakeState = intakeState.idle;
     private String robotLocation = "No Zone";
@@ -89,9 +88,12 @@ public class Blue extends OpMode {
     private double camTimer;
 
     private boolean camTimerReset = false;
-    private boolean turretAligned;
-    private boolean rumble2;
+    private boolean setPID;
 
+    private enum launchMode {
+        PID,
+        bang
+    } private launchMode currentLaunchMode = launchMode.PID;
     @Override
     public void init() {
         timer.startTime();
@@ -146,7 +148,7 @@ public class Blue extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.startTeleopDrive(true);
 //        follower.setStartingPose(globals.states.autoEndPose); //TEMPORARY
-        follower.setStartingPose(new Pose(60, 84, Math.PI/2));
+        follower.setStartingPose(globals.states.autoEndPose);
 
         while (timer.seconds() < 1) {
             telemetry.addData("timer", timer.seconds());
@@ -181,12 +183,14 @@ public class Blue extends OpMode {
         panelsField.update();
         RPM();
         sensory();
+        globals.states.autoEndPose = follower.getPose();
     }
     private void telemetry() {
         telemetry.addData("autoaim", autoAim);
         telemetry.addData("robotLocation", robotLocation);
         telemetry.addData("distance", dist);
         telemetry.addData("offset", offset);
+        telemetry.addData("launch Mode", currentLaunchMode);
         TelemetryPacket ang = new TelemetryPacket();
         ang.put("target", globals.launcher.targetRPM);
 
@@ -201,37 +205,47 @@ public class Blue extends OpMode {
 
         telemetry.update();
     }
+
     private void launch() {
 
-        boolean RPMDip = RPM - previousRPM > 150;
+        boolean RPMDip = previousRPM - RPM > 150;
         launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
-        boolean launchReady = launchPIDF.atSetPoint() && !robotLocation.equals("No Zone") && turretInRange && RPM > 500;
+        boolean launchReady = (launchPIDF.atSetPoint() ) && !robotLocation.equals("No Zone") && turretInRange && RPM > 500;
 
-        if (g2.getButton(GamepadKeys.Button.DPAD_UP) && launchReady) {
+
+        if (g2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5) {
             currentIntakeState = intakeState.launching;
         } else if (g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
-            //for Ollie
-            //if (g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.4 || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
             currentIntakeState = intakeState.intaking;
-        } else if (g1.getButton(GamepadKeys.Button.SQUARE) || g2.getButton(GamepadKeys.Button.SQUARE)) {
-            currentIntakeState = intakeState.eject;
-        }else {
-
+        } else {
             currentIntakeState = intakeState.idle;
+
         }
 
+
         if (g2.getButton(GamepadKeys.Button.CROSS)) {
+
+
+            if (RPMDip) {
+                currentLaunchMode = launchMode.bang;
+            }
+
+            hood.set(MathFunctions.clamp(hoodAngle, 0, 300));
             launchPIDF.setSetPoint(targetRPM);
             launchPower = launchPIDF.calculate(RPM);
-            if (RPM < 400) {
-                l1.set(0.6);
-                l2.set(0.6);
-            }else if (RPMDip){
-                l1.set(1);
-                l2.set(1);
-            }else {
-                l1.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
-                l2.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+
+            switch (currentLaunchMode) {
+                case PID:
+                    l1.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                    l2.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                    break;
+                case bang:
+                    if (RPM > targetRPM + 50) {  // small deadband
+                        currentLaunchMode = launchMode.PID;
+                    } else {
+                        l1.set(1);
+                        l2.set(1);
+                    }
             }
 
             if (launchPIDF.atSetPoint()) {
@@ -240,6 +254,7 @@ public class Blue extends OpMode {
                 currentcolour = lightcolour.red;
             }
         } else {
+            currentLaunchMode = launchMode.PID;
             l1.set(0);
             l2.set(0);
             currentcolour = lightcolour.off;
@@ -251,16 +266,16 @@ public class Blue extends OpMode {
             case idle:
                 intake.set(0);
                 transfer.set(0);
-                gate.set(globals.gate.close);
+
                 break;
 
             case launching:
-
-                hood.set(MathFunctions.clamp(hoodAngle, 0, 300));
-                if (turretInRange) {
+                if (launchReady) {
                     gate.set(globals.gate.open);
+                }
+                if (turretInRange) {
                     if (Objects.equals(robotLocation, "Far Zone")) {
-                        intake.set(-0.7);
+                        intake.set(-(1.2747 * dist - 0.2148));
                         transfer.set(-0.7);
                     } else {
                         intake.set(-1);
@@ -272,10 +287,6 @@ public class Blue extends OpMode {
                 intake.set(-0.75);
                 transfer.set(-1);
                 gate.set(globals.gate.close);
-                break;
-            case eject:
-                intake.set(0.5);
-                transfer.set(0.5);
                 break;
         }
     }
@@ -289,27 +300,41 @@ public class Blue extends OpMode {
         robotZone.setRotation(follower.getPose().getHeading());
         Pose goal = new Pose(globals.turret.goalX,  globals.turret.goalY);
 
-                Pose target = goal.minus(robot);
-                Vector robotToGoal = target.getAsVector();
-                double goalAngle = Math.atan2(goal.getY() - y, goal.getX() - x);
+        Pose target = goal.minus(robot);
+        Vector robotToGoal = target.getAsVector();
+        double goalAngle = Math.atan2(goal.getY() - y, goal.getX() - x);
 
-                turretAng = Math.toDegrees(AngleUnit.normalizeRadians(follower.getHeading() - goalAngle));
-                dist = robotToGoal.getMagnitude();
+        turretAng = Math.toDegrees(AngleUnit.normalizeRadians(follower.getHeading() - goalAngle));
+        dist = robotToGoal.getMagnitude();
 
 
         if (robotZone.isInside(closeLaunchZone)) {
 
+            launchPIDF.setTolerance(230);
             robotLocation = "Close Zone";
+            if (dist < 75) {
+                targetRPM = 20 * dist + 2218.2;
+                hoodAngle = 3.5 * dist - 74.545;
+            } else {
+                targetRPM = 5* dist +3458.3;
+                hoodAngle = -dist + 251.67;
+            }
         } else if (robotZone.isInside(farLaunchZone)) {
-
+            launchPIDF.setTolerance(100);
             robotLocation = "Far Zone";
+            targetRPM = 17 * dist + 2145;
+            hoodAngle = -1.9 * dist + 361.1;
         } else {
-
+            launchPIDF.setTolerance(230);
             robotLocation = "No Zone";
+            if (follower.getPose().getY() < 48) {
+                targetRPM = 3800;
+                hoodAngle = 120;
+            } else {
+                targetRPM = 4200;
+                hoodAngle = 120;
+            }
         }
-
-        targetRPM = globals.launcher.targetRPM;
-        hoodAngle = globals.launcher.ang;
 
 
 
@@ -324,8 +349,10 @@ public class Blue extends OpMode {
                 List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
                 if (!tags.isEmpty()) {
                     for (LLResultTypes.FiducialResult tag : tags) {
-                        tagAng = tag.getTargetXDegrees();
-                        tagReady = true;
+                        if (tag.getFiducialId() == 20) { //24 for red i think
+                            tagAng = tag.getTargetXDegrees();
+                            tagReady = true;
+                        }
                     }
                 }
             }
@@ -366,11 +393,16 @@ public class Blue extends OpMode {
                     camTimerReset = false;
                 }
                 if (tagReady && Math.abs(tagAng) > 1.5 && camTimer + 0.2 < timer.seconds() && follower.getAngularVelocity() < 0.5 && follower.getVelocity().getMagnitude() < 5) {
-                    offset -= globals.turret.camP * tagAng;
+                    if (robotZone.isInside(farLaunchZone)) {
+                        offset -= globals.turret.camP * (tagAng + globals.turret.turretOffset);
+                    } else {
+                        offset -= globals.turret.camP * tagAng;
+                    }
+
                 }
                 t1.set(set);
                 t2.set(set);
-            ;
+                ;
             }
         } else {
             double set = MathFunctions.clamp((180 + offset) * 1.03, 25, 335);
@@ -396,7 +428,7 @@ public class Blue extends OpMode {
             if (sensorState) {
                 if (ballsTrueStartTime < 0) {
                     ballsTrueStartTime = currentTime;
-                } else if (currentTime - ballsTrueStartTime >= 0.5) {
+                } else if (currentTime - ballsTrueStartTime >= 0.3) {
                     balls = true;
                 }
             } else {
@@ -414,7 +446,7 @@ public class Blue extends OpMode {
             zapLeon = false;
         }
 
-            if (currentcolour != lightcolour.off){
+        if (currentcolour != lightcolour.off){
             if (currentmode == lightmode.solid) {
                 if (currentcolour == lightcolour.red) {
                     lights.set(0.33); // your orange position value
@@ -433,32 +465,10 @@ public class Blue extends OpMode {
                     lights.set(0.0); // off
                 }
             }
-            }else {
-                lights.set(0);
-            }
-
-        turretAligned = false;
-        if (tagReady) {
-            if (robotZone.isInside(closeLaunchZone)) {
-                if (Math.abs(tagAng) < 5) {
-                    turretAligned = true;
-                }
-            } else if (robotZone.isInside(farLaunchZone)) {
-                if (Math.abs(tagAng) < 2) {
-                    turretAligned = true;
-                }
-            }
+        }else {
+            lights.set(0);
         }
 
-
-        if (turretAligned && !rumble2) {
-            gamepad2.rumble(0.6, 0.6, 200);
-            rumble2 = true;
-        }
-
-        if (!turretAligned && rumble2) {
-            rumble2 = false;
-        }
 
 
 
@@ -477,20 +487,20 @@ public class Blue extends OpMode {
 
         if (g1.getButton(GamepadKeys.Button.DPAD_UP)) {
 
-            follower.setPose(new Pose(142 - 8.5, 9, Math.toRadians(0)));
+            follower.setPose(new Pose(142 - 8.5, 9, Math.toRadians(180)));
         }
 
-        if (g1.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
+        if (g1.getButton(GamepadKeys.Button.DPAD_LEFT)) {
             follower.setPose(new Pose(72, 9, Math.toRadians(90)));
 
         }
         if (g1.getButton(GamepadKeys.Button.DPAD_DOWN)) {
 
-            follower.setPose(new Pose(142-135, 9, Math.toRadians(180)));
+            follower.setPose(new Pose(135, 9, Math.toRadians(180)));
 
         }
-        if (g1.getButton(GamepadKeys.Button.DPAD_LEFT)) {
-            follower.setPose(new Pose(142-15, 79, Math.toRadians(90)));
+        if (g1.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
+            follower.setPose(new Pose(15, 79, Math.toRadians(90)));
 
         }
 
@@ -507,8 +517,6 @@ public class Blue extends OpMode {
         }
 
         follower.setTeleOpDrive(leftY, -leftX, 0.75 * (g1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), true);
-        // for ollie:
-        //follower.setTeleOpDrive(leftY, -leftX, g1.getRightX(), true);
 
     }
     public void RPM() {

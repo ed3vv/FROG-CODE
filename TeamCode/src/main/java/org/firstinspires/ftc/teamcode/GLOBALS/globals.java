@@ -47,9 +47,9 @@ public class globals {
     @Config
     public static class turret {
         public static float camP = 0.05F;
-        public static float turretOffset = 0F;
-        public static float goalY = 142;
-        public static float goalX = 6;
+        public static float turretOffset = -1F;
+        public static float goalY = 129.5F;
+        public static float goalX = 15;
         public static float pFarTele = 0.00006F;
         public static float i = 0F;
         public static float d = 0.000000F; // 0.00000065
@@ -62,7 +62,7 @@ public class globals {
 
     @Config
     public static class states{
-        public static Pose autoEndPose = new Pose(0, 0);
+        public static Pose autoEndPose = new Pose(60, 84, Math.PI/2);
     }
 
 
