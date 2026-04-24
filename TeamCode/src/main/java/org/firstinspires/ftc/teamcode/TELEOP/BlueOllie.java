@@ -33,8 +33,8 @@ import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 import java.util.List;
 import java.util.Objects;
 
-@TeleOp (name = "Blue")
-public class Blue extends OpMode {
+@TeleOp (name = "Blue Ollie")
+public class BlueOllie extends OpMode {
     private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
     private final PolygonZone farLaunchZone = new PolygonZone(new Point(48, 0), new Point(72, 24), new Point(96, 0));
     private final PolygonZone robotZone = new PolygonZone(17, 17);
@@ -49,10 +49,12 @@ public class Blue extends OpMode {
     private PIDController launchPIDF = new PIDController(globals.launcher.p, globals.launcher.i, globals.launcher.d);
     private ElapsedTime timer = new ElapsedTime();
     private DigitalChannel bb;
+
     private enum aimMode {
         odo,
         cam
     } private aimMode currentAimMode = aimMode.odo;
+
     private enum intakeState {
         idle,
         intaking,
@@ -149,6 +151,7 @@ public class Blue extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         follower.startTeleopDrive(true);
+//        follower.setStartingPose(globals.states.autoEndPose); //TEMPORARY
         follower.setStartingPose(globals.states.autoEndPose);
 
         while (timer.seconds() < 1) {
@@ -163,6 +166,9 @@ public class Blue extends OpMode {
         limelight.setPollRateHz(85);
         limelight.pipelineSwitch(0);
         limelight.start();
+//        tiltl.set(0.83);
+//        tiltr.set(0.17);
+
 
         dashboard = FtcDashboard.getInstance();
         dashboard.startCameraStream(limelight, 30);
@@ -213,7 +219,7 @@ public class Blue extends OpMode {
 
         if (g2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5) {
             currentIntakeState = intakeState.launching;
-        } else if (g1.getButton(GamepadKeys.Button.TRIANGLE) || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
+        } else if (g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5 || g2.getButton(GamepadKeys.Button.TRIANGLE)) {
             currentIntakeState = intakeState.intaking;
         } else {
             currentIntakeState = intakeState.idle;
@@ -515,7 +521,7 @@ public class Blue extends OpMode {
             follower.setMaxPower(1);
         }
 
-        follower.setTeleOpDrive(leftY, -leftX, 0.75 * (g1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - g1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)), true);
+        follower.setTeleOpDrive(leftY, -leftX, g1.getRightX(), true);
 
     }
     public void RPM() {

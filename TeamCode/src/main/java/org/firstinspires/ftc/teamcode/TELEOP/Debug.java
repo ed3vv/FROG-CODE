@@ -31,6 +31,8 @@ public class Debug extends OpMode {
         t2 = new ServoEx(hardwareMap, "t2", 360);
         t2.setInverted(true);
         t1.setInverted(true);
+        t1.set(180);
+        t2.set(180);
 
         l1 = new Motor(hardwareMap, "l1", 28, 6000);
         l2 = new Motor(hardwareMap, "l2", 28, 6000);
