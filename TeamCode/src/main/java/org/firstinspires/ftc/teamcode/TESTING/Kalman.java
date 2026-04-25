@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
 @Autonomous
 public class Kalman extends CommandOpMode {
@@ -30,6 +32,7 @@ public class Kalman extends CommandOpMode {
 
     @Override
     public void initialize() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         telemetry.update();
         follower = Constants.createFollower(hardwareMap);
@@ -73,7 +76,7 @@ public class Kalman extends CommandOpMode {
         pX = pXPred; pY = pYPred; pH = pHPred;
 
         // Feed robot heading to Limelight for MegaTag 2
-        limelight.updateRobotOrientation(Math.toDegrees(hPred));
+        limelight.updateRobotOrientation(-Math.toDegrees(hPred));
 
         LLResult r = limelight.getLatestResult();
         if (r != null && r.isValid()) {
