@@ -473,7 +473,10 @@ public class BLUEFAR0SPIKE extends CommandOpMode {
 //                ),
 
                 new SequentialCommandGroup(
-                        new FollowPathCommand(follower, Path3),
+                        new ParallelDeadlineGroup(
+                                new FollowPathCommand(follower, Path3),
+                                new intakecommand(intakeSub)
+                        )
                         new ParallelDeadlineGroup(
                                 new FollowPathCommand(follower, Path4),
                                     ),
