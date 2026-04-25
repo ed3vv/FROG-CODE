@@ -22,6 +22,7 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.controller.PIDController;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
@@ -45,184 +46,172 @@ public class BLUECLOSE extends CommandOpMode {
     public PathChain Path1, Path2,Path2half, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16;
 
     //SUBSYSTEMS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    public class IntakeSubsystem extends SubsystemBase {
-//        //DECLARE VARIABLES
-//        public final MotorEx intake, transfer;
-//        public final ServoEx gate;
-//
-//        //THIS SECTION ACTS AS INIT, THUS WE PUT OUR HARDWARE INIT HERE
-//        public IntakeSubsystem(HardwareMap hardwareMap) {
-//            intake = new MotorEx(hardwareMap, "intake");
-//            intake.stopAndResetEncoder();
-//            intake.setRunMode(Motor.RunMode.RawPower);
-//            intake.setInverted(false);
-//            intake.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-//            intake.resetEncoder();
-//
-//            transfer = new MotorEx(hardwareMap, "transfer");
-//            transfer.setRunMode(Motor.RunMode.RawPower);
-//            transfer.setInverted(true);
-//            transfer.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-//
-//            gate = new ServoEx(hardwareMap, "gate");
-//            gate.set(globals.gate.close);
-//        }
-//
-//        //ACTUAL FUNCTIONS ARE CREATED BELOW
-//        public void startIntake() {
-//            intake.set(-0.75);
-//            transfer.set(-1);
-//            gate.set(globals.gate.close);
-//        }
-//
-//        public void stopIntake() {
-//            intake.set(0);
-//            transfer.set(0);
-//            gate.set(globals.gate.close);
-//        }
-//
-//        public void feedLauncher() {
-//            gate.set(globals.gate.open);
-//            intake.set(-1);//TODO -0.7 IF FAR AUTO
-//            transfer.set(-1);
-//        }
-//    }
-//
-//    public class OuttakeSubsystem extends SubsystemBase {
-//        public ServoEx turret1, turret2, hood;
-//        public MotorEx launcher1, launcher2;
-//        private final IntakeSubsystem intakeSub;
-//        private Limelight3A limelight;
-//        private ElapsedTime timer = new ElapsedTime();
-//        private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
-//        private final PolygonZone robotZone = new PolygonZone(17, 17);
-//        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false;
-//        public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer;
-//
-//        public OuttakeSubsystem(HardwareMap hardwareMap, IntakeSubsystem intakeSub) {
-//            this.intakeSub = intakeSub;
-//
-//            turret1 = new ServoEx(hardwareMap, "t1", 360);
-//            turret2 = new ServoEx(hardwareMap, "t2", 360);
-//            turret2.setInverted(true);
-//            turret1.setInverted(true);
-//
-//            limelight = hardwareMap.get(Limelight3A.class, "limelight");
-//            limelight.setPollRateHz(85);
-//            limelight.pipelineSwitch(0);
-//            limelight.start();
-//
-//            launcher1 = new MotorEx(hardwareMap, "l1", 28, 6000);
-//            launcher2 = new MotorEx(hardwareMap, "l2", 28, 6000);
-//            launcher1.setRunMode(Motor.RunMode.RawPower);
-//            launcher2.setRunMode(Motor.RunMode.RawPower);
-//            launcher2.setInverted(true);
-//            launcher1.setInverted(false);
-//            launcher1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-//            launcher2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-//
-//            hood = new ServoEx(hardwareMap, "hood", 300);
-//        }
-//
-//        public void setTurret() {
-//            tagReady = false;
-//            LLResult result = limelight.getLatestResult();
-//            if (result != null && result.isValid()) {
-//                if (result.getStaleness() < 500) {
-//                    List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
-//                    if (!tags.isEmpty()) {
-//                        for (LLResultTypes.FiducialResult tag : tags) {
-//                            tagAng = tag.getTargetXDegrees();
-//                            tagReady = true;
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if (turretInRange) {
-//                // only go out of range if it exceeds 155
-//                if (Math.abs(turretAng) > 155) {
-//                    turretInRange = false;
-//                    turretAng = 0;
-//                    turret1.set(180);
-//                    turret2.set(180);
-//                }
-//            } else {
-//                // only come back in range if it drops below 145
-//                if (Math.abs(turretAng) <= 145) {
-//                    turretInRange = true;
-//                } else {
-//                    turret1.set(180);
-//                    turret2.set(180);
-//                }
-//            }
-//
-//            if (turretInRange) {
-//                double set = MathFunctions.clamp((180 - turretAng + offset) * 1.03, 25, 335);
-//                if (tagReady && !camTimerReset) {
-//                    camTimer = timer.seconds();
-//                    camTimerReset = true;
-//                } else if (!tagReady) {
-//                    camTimerReset = false;
-//                }
-//                if (tagReady && Math.abs(tagAng) > 1.5 && camTimer + 0.2 < timer.seconds() && follower.getAngularVelocity() < 0.5 && follower.getVelocity().getMagnitude() < 5) {
-//                    offset -= globals.turret.camP * tagAng;
-//                }
-//                turret1.set(set);
-//                turret2.set(set);
-//            }
-//        }
-//
-//        private void updateRPM() {
-//            double currentTime = System.nanoTime() / 1_000_000_000.0;
-//            int currentPosition = launcher2.getCurrentPosition();
-//
-//            if (!initialized) {
-//                lastTime = currentTime;
-//                lastPosition = currentPosition;
-//                initialized = true;
-//                return;
-//            }
-//
-//            double deltaTime = currentTime - lastTime;
-//            double deltaTicks = currentPosition - lastPosition;
-//
-//            if (deltaTime > 0.02) {
-//                double revs = deltaTicks / 28.0;
-//                RPM = -(revs / deltaTime) * 60.0;
-//                lastTime = currentTime;
-//                lastPosition = currentPosition;
-//            }
-//        }
-//
-//        private void launchCalc() {
-//            double x = follower.getPose().getX();
-//            double y = follower.getPose().getY();
-//            double heading = follower.getPose().getHeading();
-//
-//            robotZone.setPosition(x, y);
-//            robotZone.setRotation(heading);
-//
-//            double dx = globals.turret.goalX - x;
-//            double dy = globals.turret.goalY - y;
-//
-//            double goalAngle = Math.atan2(dy, dx);
-//            turretAng = Math.toDegrees(AngleUnit.normalizeRadians(heading - goalAngle));
-//            dist = Math.hypot(dx, dy);
-//
-//            if (robotZone.isInside(closeLaunchZone)) {
-//                robotinZone = true;
-//            }
-//
-//            targetRPM = globals.launcher.targetRPM;
-//            hoodAngle = globals.launcher.ang;
-//        }
-//
-//        @Override
-//        public void periodic() {
-//            updateRPM();
-//            launchCalc();}
-//    }
+    public class IntakeSubsystem extends SubsystemBase {
+        //DECLARE VARIABLES
+        public final MotorEx intake, transfer;
+        public final ServoEx gate;
+
+        //THIS SECTION ACTS AS INIT, THUS WE PUT OUR HARDWARE INIT HERE
+        public IntakeSubsystem(HardwareMap hardwareMap) {
+            intake = new MotorEx(hardwareMap, "intake");
+            intake.stopAndResetEncoder();
+            intake.setRunMode(Motor.RunMode.RawPower);
+            intake.setInverted(false);
+            intake.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+            intake.resetEncoder();
+
+            transfer = new MotorEx(hardwareMap, "transfer");
+            transfer.setRunMode(Motor.RunMode.RawPower);
+            transfer.setInverted(true);
+            transfer.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+
+            gate = new ServoEx(hardwareMap, "gate");
+            gate.set(globals.gate.close);
+        }
+
+        //ACTUAL FUNCTIONS ARE CREATED BELOW
+        public void startIntake() {
+            intake.set(-0.75);
+            transfer.set(-1);
+            gate.set(globals.gate.close);
+        }
+
+        public void stopIntake() {
+            intake.set(0);
+            transfer.set(0);
+            gate.set(globals.gate.close);
+        }
+
+        public void feedLauncher() {
+            gate.set(globals.gate.open);
+            intake.set(-1);//TODO -0.7 IF FAR AUTO
+            transfer.set(-1);
+        }
+    }
+
+    public class OuttakeSubsystem extends SubsystemBase {
+        public ServoEx turret1, turret2, hood;
+        public MotorEx launcher1, launcher2;
+        private final IntakeSubsystem intakeSub;
+        private ElapsedTime timer = new ElapsedTime();
+        private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
+        private final PolygonZone robotZone = new PolygonZone(17, 17);
+        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false;
+        private PIDController launchPIDF = new PIDController(globals.launcher.p, globals.launcher.i, globals.launcher.d);
+        public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer;
+
+        public OuttakeSubsystem(HardwareMap hardwareMap, IntakeSubsystem intakeSub) {
+            this.intakeSub = intakeSub;
+
+            turret1 = new ServoEx(hardwareMap, "t1", 360);
+            turret2 = new ServoEx(hardwareMap, "t2", 360);
+            turret2.setInverted(true);
+            turret1.setInverted(true);
+
+            launcher1 = new MotorEx(hardwareMap, "l1", 28, 6000);
+            launcher2 = new MotorEx(hardwareMap, "l2", 28, 6000);
+            launcher1.setRunMode(Motor.RunMode.RawPower);
+            launcher2.setRunMode(Motor.RunMode.RawPower);
+            launcher2.setInverted(true);
+            launcher1.setInverted(false);
+            launcher1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+            launcher2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
+
+            hood = new ServoEx(hardwareMap, "hood", 300);
+        }
+
+
+
+
+        public void turretaim(){
+            if (turretInRange) {
+                // only go out of range if it exceeds 155
+                if (Math.abs(turretAng) > 155) {
+                    turretInRange = false;
+                    turretAng = 0;
+                    turret1.set(180);
+                    turret2.set(180);
+                }
+            } else {
+                // only come back in range if it drops below 145
+                if (Math.abs(turretAng) <= 145) {
+                    turretInRange = true;
+                } else {
+                    turret1.set(180);
+                    turret2.set(180);
+                }
+            }
+
+            if (turretInRange) {
+                double set = MathFunctions.clamp((180 - (turretAng * 1.054)), 25, 335);
+                turret1.set(set);
+                turret2.set(set);
+            }
+        }
+
+
+        public void RPM() {
+            double currentTime = getRuntime();
+            int currentPosition = launcher1.getCurrentPosition();
+
+            double deltaTime = currentTime - lastTime;
+            double deltaTicks = currentPosition - lastPosition;
+
+            if (deltaTime > 0.02) {
+                previousRPM = RPM;
+                double revs = deltaTicks / 28.0; // GoBILDA CPR
+                RPM = (revs / deltaTime) * 60.0;
+
+                lastTime = currentTime;
+                lastPosition = currentPosition;
+            }
+        }
+
+        private void launchCalc() {
+            double x = follower.getPose().getX();
+            double y = follower.getPose().getY();
+            Pose robot = new Pose(x, y);
+            robotZone.setPosition(x, y);
+            robotZone.setRotation(follower.getPose().getHeading());
+            Pose goal = new Pose(globals.turret.goalX, globals.turret.goalY);
+
+            Pose target = goal.minus(robot);
+            Vector robotToGoal = target.getAsVector();
+            double goalAngle = Math.atan2(goal.getY() - y, goal.getX() - x);
+
+            turretAng = Math.toDegrees(AngleUnit.normalizeRadians(follower.getHeading() - goalAngle));
+            dist = robotToGoal.getMagnitude();
+
+            if (robotZone.isInside(closeLaunchZone)) {
+                launchPIDF.setTolerance(230);
+                if (dist < 55) {
+                    targetRPM = 14 * dist + 2010;
+                    hoodAngle = 4.2 * dist - 159;
+                } else if (dist  < 75) {
+                    targetRPM = -1.1429 * Math.pow(dist, 2) + 172 * dist - 3322.9;
+                    hoodAngle = 100;
+                } else {
+                    targetRPM = 20 * dist + 1600;
+                    hoodAngle = 2 * dist -50;
+                }
+            } else {
+                launchPIDF.setTolerance(230);
+                if (follower.getPose().getY() < 56) {
+                    targetRPM = 3300;
+                    hoodAngle = 120;
+                } else {
+                    targetRPM = 4300;
+                    hoodAngle = 120;
+                }
+            }
+
+        }
+
+        @Override
+        public void periodic() {
+            RPM();
+            launchCalc();}
+    }
 
     //COMMANDS///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -389,24 +378,22 @@ public class BLUECLOSE extends CommandOpMode {
 
     @Override
     public void initialize() {
-//        IntakeSubsystem intakeSub = new IntakeSubsystem(hardwareMap);
-//        OuttakeSubsystem outtakeSub = new OuttakeSubsystem(hardwareMap, intakeSub);
-
-
         //PINPOINT INITIALIZATION, CALIBRATES OUR HARDWARE BEFORE RUNNING
         GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.resetPosAndIMU();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 1000) {
         }
 
         //SET INITIAL POSITION AFTER HARDWARE CALIBRATION
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(29, 129, Math.toRadians(180)));//TODO
 
-        //register(intakeSub, outtakeSub);
+        IntakeSubsystem intakeSub = new IntakeSubsystem(hardwareMap);
+        OuttakeSubsystem outtakeSub = new OuttakeSubsystem(hardwareMap, intakeSub);
+        register(intakeSub, outtakeSub);
+
         buildpath();
 
         //AUTONOMOUS ROUTINE.
@@ -443,12 +430,5 @@ public class BLUECLOSE extends CommandOpMode {
         }
         super.run();
         follower.update();
-
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("Follower busy", follower.isBusy());
-        telemetry.addData("Scheduled", scheduled);
-        telemetry.update();
     }
 }
