@@ -275,13 +275,8 @@ public class Blue extends OpMode {
                     gate.set(globals.gate.open);
                 }
                 if (turretInRange) {
-                    if (Objects.equals(robotLocation, "Far Zone")) {
                         transfer.set(1);
                         intake.set(1);
-                    } else {
-                        intake.set(1);
-                        transfer.set(1);
-                    }
                 }
                 break;
             case intaking:

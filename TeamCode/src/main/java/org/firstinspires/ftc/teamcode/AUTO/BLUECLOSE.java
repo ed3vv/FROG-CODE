@@ -33,9 +33,11 @@ import com.skeletonarmy.marrow.zones.PolygonZone;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.GLOBALS.globals;
+import org.firstinspires.ftc.teamcode.TELEOP.Blue;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
+import java.util.Objects;
 
 @Autonomous
 public class BLUECLOSE extends CommandOpMode {
@@ -43,15 +45,20 @@ public class BLUECLOSE extends CommandOpMode {
     TelemetryData telemetryData = new TelemetryData(telemetry);
     private boolean scheduled = false;
     private SequentialCommandGroup froggyroute;
-    public PathChain Path1, Path2,Path2half, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16;
+    public PathChain Path1, Path2, Path2half, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16;
+
+    private enum launchMode {
+        PID,
+        bang
+    }
+
+    private launchMode currentLaunchMode = launchMode.PID;
 
     //SUBSYSTEMS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class IntakeSubsystem extends SubsystemBase {
-        //DECLARE VARIABLES
         public final MotorEx intake, transfer;
         public final ServoEx gate;
 
-        //THIS SECTION ACTS AS INIT, THUS WE PUT OUR HARDWARE INIT HERE
         public IntakeSubsystem(HardwareMap hardwareMap) {
             intake = new MotorEx(hardwareMap, "intake");
             intake.stopAndResetEncoder();
@@ -69,10 +76,10 @@ public class BLUECLOSE extends CommandOpMode {
             gate.set(globals.gate.close);
         }
 
-        //ACTUAL FUNCTIONS ARE CREATED BELOW
+
         public void startIntake() {
-            intake.set(-0.75);
-            transfer.set(-1);
+            intake.set(0.75);
+            transfer.set(1);
             gate.set(globals.gate.close);
         }
 
@@ -84,7 +91,7 @@ public class BLUECLOSE extends CommandOpMode {
 
         public void feedLauncher() {
             gate.set(globals.gate.open);
-            intake.set(-1);//TODO -0.7 IF FAR AUTO
+            intake.set(-1);
             transfer.set(-1);
         }
     }
@@ -93,12 +100,11 @@ public class BLUECLOSE extends CommandOpMode {
         public ServoEx turret1, turret2, hood;
         public MotorEx launcher1, launcher2;
         private final IntakeSubsystem intakeSub;
-        private ElapsedTime timer = new ElapsedTime();
         private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
-        private final PolygonZone robotZone = new PolygonZone(17, 17);
-        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false;
+        private final PolygonZone robotZone = new PolygonZone(17, 17.5);
+        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false, launchReady = false;
         private PIDController launchPIDF = new PIDController(globals.launcher.p, globals.launcher.i, globals.launcher.d);
-        public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer;
+        public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer, launchPower;
 
         public OuttakeSubsystem(HardwareMap hardwareMap, IntakeSubsystem intakeSub) {
             this.intakeSub = intakeSub;
@@ -117,38 +123,52 @@ public class BLUECLOSE extends CommandOpMode {
             launcher1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
             launcher2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
 
+            launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
+
             hood = new ServoEx(hardwareMap, "hood", 300);
         }
 
 
+        private void launch() {
+            boolean RPMDip = previousRPM - RPM > 150;
+            launchReady = (launchPIDF.atSetPoint()) && robotZone.isInside(closeLaunchZone) && RPM > 500 && !follower.isBusy();
 
-
-        public void turretaim(){
-            if (turretInRange) {
-                // only go out of range if it exceeds 155
-                if (Math.abs(turretAng) > 155) {
-                    turretInRange = false;
-                    turretAng = 0;
-                    turret1.set(180);
-                    turret2.set(180);
-                }
-            } else {
-                // only come back in range if it drops below 145
-                if (Math.abs(turretAng) <= 145) {
-                    turretInRange = true;
-                } else {
-                    turret1.set(180);
-                    turret2.set(180);
-                }
+            if (RPMDip) {
+                currentLaunchMode = launchMode.bang;
             }
 
-            if (turretInRange) {
-                double set = MathFunctions.clamp((180 - (turretAng * 1.054)), 25, 335);
-                turret1.set(set);
-                turret2.set(set);
+            hood.set(MathFunctions.clamp(hoodAngle, 0, 300));
+            launchPIDF.setSetPoint(targetRPM);
+            launchPower = launchPIDF.calculate(RPM);
+
+            double set = MathFunctions.clamp((180 - (turretAng * 1.054)), 25, 335);
+            turret1.set(set);
+            turret2.set(set);
+
+            switch (currentLaunchMode) {
+                case PID:
+                    launcher1.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                    launcher2.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                    break;
+                case bang:
+                    if (RPM > targetRPM + 50) {  // small deadband
+                        currentLaunchMode = launchMode.PID;
+                    } else {
+                        launcher1.set(1);
+                        launcher2.set(1);
+                    }
+            }
+
+            if (launchReady){
+                intakeSub.feedLauncher();
             }
         }
 
+        public void launcheroff(){
+            currentLaunchMode = launchMode.PID;
+            launcher2.set(0.3);
+            launcher1.set(0.3);
+        }
 
         public void RPM() {
             double currentTime = getRuntime();
@@ -210,12 +230,50 @@ public class BLUECLOSE extends CommandOpMode {
         @Override
         public void periodic() {
             RPM();
-            launchCalc();}
+            launchCalc();
+        }
     }
 
     //COMMANDS///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public static class intakecommand extends  CommandBase {
+        private final IntakeSubsystem intakeSubsystem;
 
+        public intakecommand(IntakeSubsystem intakeSubsystem){
+            this.intakeSubsystem = intakeSubsystem;
+            addRequirements(intakeSubsystem);
+        }
+
+        @Override
+        public void initialize(){
+            intakeSubsystem.startIntake();
+        }
+
+        @Override
+        public void end(boolean interrupted){
+            intakeSubsystem.stopIntake();
+        }
+    }
+
+    public static class outtakecommand extends  CommandBase {
+        private final OuttakeSubsystem outtakeSubsystem;
+
+        public outtakecommand(OuttakeSubsystem outtakeSubsystem){
+            this.outtakeSubsystem = outtakeSubsystem;
+            addRequirements(outtakeSubsystem);
+        }
+
+        @Override
+        public void execute(){
+            outtakeSubsystem.launch();
+        }
+
+        @Override
+        public void end(boolean interrupted){
+            outtakeSubsystem.launcheroff();
+            outtakeSubsystem.intakeSub.stopIntake();
+        }
+    }
 
     //PATHS//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void buildpath(){
@@ -398,13 +456,39 @@ public class BLUECLOSE extends CommandOpMode {
 
         //AUTONOMOUS ROUTINE.
         froggyroute = new SequentialCommandGroup(
-                new FollowPathCommand(follower, Path1),
-                new WaitCommand(1500),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path1),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
                 new FollowPathCommand(follower, Path2, false),
-                new FollowPathCommand(follower, Path2half),
-                new FollowPathCommand(follower, Path3),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path4),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path2half),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path3),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path4),
+                                new WaitCommand(1000)
+                        ),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path5),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
                 new FollowPathCommand(follower, Path5),
                 new WaitCommand(1500),
                 new FollowPathCommand(follower, Path6),
