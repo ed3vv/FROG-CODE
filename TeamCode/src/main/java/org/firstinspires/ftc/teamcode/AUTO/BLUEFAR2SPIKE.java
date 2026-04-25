@@ -45,13 +45,16 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
     private SequentialCommandGroup froggyroute;
     public PathChain Path1, Path2,Path2half, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16, Path17;
 
+    private enum launchMode {
+        PID,
+        bang
+    }  private launchMode currentLaunchMode = launchMode.PID;
     //SUBSYSTEMS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public class IntakeSubsystem extends SubsystemBase {
-        //DECLARE VARIABLES
         public final MotorEx intake, transfer;
         public final ServoEx gate;
 
-        //THIS SECTION ACTS AS INIT, THUS WE PUT OUR HARDWARE INIT HERE
         public IntakeSubsystem(HardwareMap hardwareMap) {
             intake = new MotorEx(hardwareMap, "intake");
             intake.stopAndResetEncoder();
@@ -69,10 +72,10 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
             gate.set(globals.gate.close);
         }
 
-        //ACTUAL FUNCTIONS ARE CREATED BELOW
+
         public void startIntake() {
-            intake.set(-0.75);
-            transfer.set(-1);
+            intake.set(0.75);
+            transfer.set(1);
             gate.set(globals.gate.close);
         }
 
@@ -84,8 +87,12 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
 
         public void feedLauncher() {
             gate.set(globals.gate.open);
-            intake.set(-1);//TODO -0.7 IF FAR AUTO
-            transfer.set(-1);
+            intake.set(1);
+            transfer.set(1);
+        }
+
+        public void gateclose() {
+            gate.set(globals.gate.close);
         }
     }
 
@@ -93,12 +100,11 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
         public ServoEx turret1, turret2, hood;
         public MotorEx launcher1, launcher2;
         private final IntakeSubsystem intakeSub;
-        private ElapsedTime timer = new ElapsedTime();
-        private final PolygonZone closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
-        private final PolygonZone robotZone = new PolygonZone(17, 17);
-        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false;
+        private final PolygonZone farLaunchZone = new PolygonZone(new Point(48, 0), new Point(72, 24), new Point(96, 0));
+        private final PolygonZone robotZone = new PolygonZone(17, 17.5);
+        public boolean tagReady = false, turretInRange, robotinZone = false, initialized = false, camTimerReset = false, launchReady = false;
         private PIDController launchPIDF = new PIDController(globals.launcher.p, globals.launcher.i, globals.launcher.d);
-        public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer;
+        public double tagAng, turretAng, dist, offset, RPM, previousRPM, targetRPM, hoodAngle, lastTime, lastPosition, camTimer, launchPower;
 
         public OuttakeSubsystem(HardwareMap hardwareMap, IntakeSubsystem intakeSub) {
             this.intakeSub = intakeSub;
@@ -117,38 +123,53 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
             launcher1.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
             launcher2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
 
+            launchPIDF.setPID(globals.launcher.p, globals.launcher.i, globals.launcher.d);
+
             hood = new ServoEx(hardwareMap, "hood", 300);
         }
 
 
+        private void launch() {
+            boolean RPMDip = previousRPM - RPM > 150;
+            launchReady = (launchPIDF.atSetPoint()) && robotZone.isInside(farLaunchZone) && RPM > 500 && follower.getVelocity().getMagnitude() < 2;
 
-
-        public void turretaim(){
-            if (turretInRange) {
-                // only go out of range if it exceeds 155
-                if (Math.abs(turretAng) > 155) {
-                    turretInRange = false;
-                    turretAng = 0;
-                    turret1.set(180);
-                    turret2.set(180);
-                }
-            } else {
-                // only come back in range if it drops below 145
-                if (Math.abs(turretAng) <= 145) {
-                    turretInRange = true;
-                } else {
-                    turret1.set(180);
-                    turret2.set(180);
-                }
+            if (RPMDip) {
+                currentLaunchMode = launchMode.bang;
             }
 
-            if (turretInRange) {
-                double set = MathFunctions.clamp((180 - (turretAng * 1.054)), 25, 335);
-                turret1.set(set);
-                turret2.set(set);
+            hood.set(MathFunctions.clamp(hoodAngle, 0, 300));
+            launchPIDF.setSetPoint(targetRPM);
+            launchPower = launchPIDF.calculate(RPM);
+
+            double set = MathFunctions.clamp((180 - (78 * 1.054)), 25, 335);//253
+            turret1.set(set);
+            turret2.set(set);
+
+            switch (currentLaunchMode) {
+                case PID:
+                    launcher1.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                    launcher2.set(launchPower + globals.launcher.kv * targetRPM + globals.launcher.ks);
+                    break;
+                case bang:
+                    if (RPM > targetRPM + 50) {  // small deadband
+                        currentLaunchMode = launchMode.PID;
+                    } else {
+                        launcher1.set(1);
+                        launcher2.set(1);
+                    }
+            }
+
+            if (launchReady){
+                intakeSub.feedLauncher();
             }
         }
 
+        public void launcheroff(){
+            currentLaunchMode = launchMode.PID;
+            launcher2.set(0.7);
+            launcher1.set(0.7);
+            intakeSub.gateclose();
+        }
 
         public void RPM() {
             double currentTime = getRuntime();
@@ -173,7 +194,7 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
             Pose robot = new Pose(x, y);
             robotZone.setPosition(x, y);
             robotZone.setRotation(follower.getPose().getHeading());
-            Pose goal = new Pose(globals.turret.goalX, globals.turret.goalY);
+            Pose goal = new Pose(6, 142);
 
             Pose target = goal.minus(robot);
             Vector robotToGoal = target.getAsVector();
@@ -182,17 +203,14 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
             turretAng = Math.toDegrees(AngleUnit.normalizeRadians(follower.getHeading() - goalAngle));
             dist = robotToGoal.getMagnitude();
 
-            if (robotZone.isInside(closeLaunchZone)) {
-                launchPIDF.setTolerance(230);
-                if (dist < 55) {
-                    targetRPM = 14 * dist + 2010;
-                    hoodAngle = 4.2 * dist - 159;
-                } else if (dist  < 75) {
-                    targetRPM = -1.1429 * Math.pow(dist, 2) + 172 * dist - 3322.9;
-                    hoodAngle = 100;
+            if (robotZone.isInside(farLaunchZone)) {
+                launchPIDF.setTolerance(100);
+                if (dist < 150) {
+                    targetRPM = 14.433 * dist + 2064.1;
+                    hoodAngle = 1.9704 * dist - 124.67;
                 } else {
-                    targetRPM = 20 * dist + 1600;
-                    hoodAngle = 2 * dist -50;
+                    targetRPM = 14.286 * dist + 2185.7;
+                    hoodAngle = 0.7143 * dist + 44.286;
                 }
             } else {
                 launchPIDF.setTolerance(230);
@@ -210,12 +228,50 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
         @Override
         public void periodic() {
             RPM();
-            launchCalc();}
+            launchCalc();
+        }
     }
 
     //COMMANDS///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public static class intakecommand extends  CommandBase {
+        private final IntakeSubsystem intakeSubsystem;
 
+        public intakecommand(IntakeSubsystem intakeSubsystem){
+            this.intakeSubsystem = intakeSubsystem;
+            addRequirements(intakeSubsystem);
+        }
+
+        @Override
+        public void initialize(){
+            intakeSubsystem.startIntake();
+        }
+
+        @Override
+        public void end(boolean interrupted){
+            intakeSubsystem.stopIntake();
+        }
+    }
+
+    public static class outtakecommand extends  CommandBase {
+        private final OuttakeSubsystem outtakeSubsystem;
+
+        public outtakecommand(OuttakeSubsystem outtakeSubsystem){
+            this.outtakeSubsystem = outtakeSubsystem;
+            addRequirements(outtakeSubsystem);
+        }
+
+        @Override
+        public void execute(){
+            outtakeSubsystem.launch();
+        }
+
+        @Override
+        public void end(boolean interrupted){
+            outtakeSubsystem.launcheroff();
+            outtakeSubsystem.intakeSub.stopIntake();
+        }
+    }
 
     //PATHS//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void buildpath(){
