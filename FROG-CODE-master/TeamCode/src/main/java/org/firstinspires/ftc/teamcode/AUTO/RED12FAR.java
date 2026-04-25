@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.AUTO;
 
+import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -24,7 +25,7 @@ import org.firstinspires.ftc.teamcode.GLOBALS.globals;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous
-public class BLUE18CLOSE extends CommandOpMode {
+public class RED12FAR extends CommandOpMode {
     private Follower follower;
     TelemetryData telemetryData = new TelemetryData(telemetry);
     private boolean scheduled = false;
@@ -36,114 +37,91 @@ public class BLUE18CLOSE extends CommandOpMode {
     public void buildpath(){
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(22.364, 118.172),
-                                new Pose(50.000, 90.000)
+                                new Pose(51.000, 9.000).mirror(),
+
+                                new Pose(11.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(50.000, 90.000),
-                                new Pose(42.000, 59.000)
+                                new Pose(11.000, 9.000).mirror(),
+
+                                new Pose(51.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(42.000, 59.000),
-                                new Pose(23.000, 59.000)
+                                new Pose(51.000, 9.000).mirror(),
+
+                                new Pose(42.500, 35.500).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(23.000, 59.000),
-                                new Pose(55.000, 76.000)
+                                new Pose(42.500, 35.500).mirror(),
+
+                                new Pose(20.000, 35.500).mirror()
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.000, 76.000),
-                                new Pose(12.500, 60.000)
+                                new Pose(20.000, 35.500).mirror(),
+
+                                new Pose(51.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(12.500, 60.000),
-                                new Pose(55.000, 76.000)
+                                new Pose(51.000, 9.000).mirror(),
+
+                                new Pose(42.500, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.000, 76.000),
-                                new Pose(12.500, 60.000)
+                                new Pose(42.500, 60.000).mirror(),
+
+                                new Pose(20.000, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
                 .build();
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(12.500, 60.000),
-                                new Pose(55.000, 76.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
-                .build();
+                                new Pose(20.000, 60.000).mirror(),
 
+                                new Pose(51.000, 9.000).mirror()
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
+                .build();
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.000, 76.000),
-                                new Pose(42.000, 82.500)
-                        )
-                ).setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))
-                .build();
+                                new Pose(51.000, 9.000).mirror(),
 
-        Path10 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(42.000, 82.500),
-                                new Pose(23.000, 82.500)
+                                new Pose(35.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
-        Path11 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(23.000, 82.500),
-                                new Pose(45.000, 82.500)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        Path12 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(45.000, 82.500),
-                                new Pose(42.000, 35.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        Path13 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(42.000, 35.000),
-                                new Pose(23.000, 35.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-        Path14 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(23.000, 35.000),
-                                new Pose(58.000, 106.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
     }
 
@@ -183,7 +161,7 @@ public class BLUE18CLOSE extends CommandOpMode {
 
             hood = new ServoEx(hardwareMap, "hood", 300);
 
-            launchPID.setTolerance(50);
+            launchPID.setTolerance(75);
         }
 
         public void intakestart(){
@@ -203,11 +181,27 @@ public class BLUE18CLOSE extends CommandOpMode {
         }
 
         public void launch(){
-            //TODO
+            launchPID.setSetPoint(4100);
+            launchPower = launchPID.calculate(RPM);
+            if (RPM < 400) {
+                launcher1.set(0.55);
+                launcher2.set(0.55);
+            } else {
+                launcher1.set(launchPower + globals.launcher.kv * 4100 + globals.launcher.ks);
+                launcher2.set(launchPower + globals.launcher.kv * 4100 + globals.launcher.ks);
+            }
+
+            if (launchPID.atSetPoint()){
+                gate.set(globals.gate.open);
+                intake.set(0.6);
+                transfer.set(0.6);
+            }
         }
 
         public void setup() {
-            //TODO
+            hood.set(160);
+            turret1.set(360-globals.turret.turretangle);
+            turret2.set(360-globals.turret.turretangle);
         }
 
         public void RPM() {
@@ -219,7 +213,7 @@ public class BLUE18CLOSE extends CommandOpMode {
 
             if (deltaTime > 0.02) {
                 previousRPM = RPM;
-                double revs = deltaTicks / 28.0; // GoBUILDA CPR
+                double revs = deltaTicks / 28.0; // GoBILDA CPR
                 RPM = -(revs / deltaTime) * 60.0;
 
                 lastTime = currentTime;
@@ -272,7 +266,6 @@ public class BLUE18CLOSE extends CommandOpMode {
         public void end(boolean interrupted){
             everythingsubsystem.launchfinish();
         }
-        //TODO ADD LAUNCH
     }
 
     @Override
@@ -288,31 +281,38 @@ public class BLUE18CLOSE extends CommandOpMode {
         }
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(22.364, 118.172, Math.toRadians(180)));
+        follower.setStartingPose(new Pose(51, 9, Math.toRadians(180)).mirror());//TODO
+
         buildpath();
 
-
         froggyroute = new SequentialCommandGroup(
-                new FollowPathCommand(follower, Path1),
                 new ParallelDeadlineGroup(
                         new WaitCommand(4000),
                         new froggyspit(everythingsubsystem)
                 ),
-                new FollowPathCommand(follower, Path2),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path3),
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path1),
+                                new WaitCommand(500),
+                                new FollowPathCommand(follower, Path2)
+                        ),
                         new froggyeat(everythingsubsystem)
                 ),
-                new FollowPathCommand(follower, Path4),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path5),
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path3),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path4),
                         new froggyeat(everythingsubsystem)
+                ),
+                new FollowPathCommand(follower, Path5),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(4000),
+                        new froggyspit(everythingsubsystem)
                 ),
                 new FollowPathCommand(follower, Path6),
-                new ParallelDeadlineGroup(
-                        new WaitCommand(4000),
-                        new froggyspit(everythingsubsystem)
-                ),
                 new ParallelDeadlineGroup(
                         new FollowPathCommand(follower, Path7),
                         new froggyeat(everythingsubsystem)
@@ -322,29 +322,8 @@ public class BLUE18CLOSE extends CommandOpMode {
                         new WaitCommand(4000),
                         new froggyspit(everythingsubsystem)
                 ),
-                new FollowPathCommand(follower, Path9),
-                new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path10),
-                        new froggyeat(everythingsubsystem)
-                ),
-                new FollowPathCommand(follower, Path11),
-                new ParallelDeadlineGroup(
-                        new WaitCommand(4000),
-                        new froggyspit(everythingsubsystem)
-                ),
-                new FollowPathCommand(follower, Path12),
-                new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path13),
-                        new froggyeat(everythingsubsystem)
-                ),
-                new FollowPathCommand(follower, Path14),
-                new ParallelDeadlineGroup(
-                        new WaitCommand(4000),
-                        new froggyspit(everythingsubsystem)
-                )
-
+                new FollowPathCommand(follower, Path9)
         );
-
     }
 
     @Override
@@ -353,8 +332,10 @@ public class BLUE18CLOSE extends CommandOpMode {
             schedule(froggyroute);
             scheduled = true;
         }
+        globals.states.autoEndPose = follower.getPose();
         super.run();
         follower.update();
     }
 
 }
+
