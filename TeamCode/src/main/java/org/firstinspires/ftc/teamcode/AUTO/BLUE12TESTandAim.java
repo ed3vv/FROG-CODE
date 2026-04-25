@@ -246,7 +246,7 @@ public class BLUE12TESTandAim extends CommandOpMode {
             }
 
             // Update global for other subsystems to see if needed
-            globals.launcher.targetRPM = (float)targetRPM;
+            globals.tuning.targetRPM = (float)targetRPM;
 
             // 3. Apply to servos
             applyToServos();

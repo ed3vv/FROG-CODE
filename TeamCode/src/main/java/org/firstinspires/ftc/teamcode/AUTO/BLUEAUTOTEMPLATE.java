@@ -201,8 +201,8 @@ public class BLUEAUTOTEMPLATE extends CommandOpMode {
                 robotinZone = true;
             }
 
-            targetRPM = globals.launcher.targetRPM;
-            hoodAngle = globals.launcher.ang;
+            targetRPM = globals.tuning.targetRPM;
+            hoodAngle = globals.tuning.ang;
         }
 
         @Override

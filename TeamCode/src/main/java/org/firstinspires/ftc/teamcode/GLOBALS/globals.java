@@ -16,6 +16,11 @@ public class globals {
         public static float d = 0F;
         public static float ks = 0.067F; //0.0000216
         public static float kv = 0.00017F; //0.000000120871
+    }
+
+    @Config
+    public static class tuning {
+
         public static float ang = 0F;
         public static float targetRPM = 3000F;
 
@@ -30,9 +35,9 @@ public class globals {
     @Config
     public static class turret {
         public static float camP = 0.05F;
-        public static float turretOffset = -1.5F;
-        public static float goalY = 129.5F;
-        public static float goalX = 15;
+        public static float turretOffset = 0F;
+        public static float goalY = 138F;
+        public static float goalX = 6;
         public static float turretangle = 302F;
 
     }

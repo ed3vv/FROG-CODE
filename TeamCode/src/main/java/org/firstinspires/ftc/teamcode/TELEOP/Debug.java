@@ -105,14 +105,14 @@ public class Debug extends OpMode {
 
     private void launch() {
         if (g2.getButton(GamepadKeys.Button.CROSS)) {
-            launchPIDF.setSetPoint(globals.launcher.targetRPM);
+            launchPIDF.setSetPoint(globals.tuning.targetRPM);
             double launchPower = launchPIDF.calculate(RPM);
             if (RPM < 400) {
                 l1.set(0.6);
                 l2.set(0.6);
             } else {
-                l1.set(launchPower + globals.launcher.kv * globals.launcher.targetRPM + globals.launcher.ks);
-                l2.set(launchPower + globals.launcher.kv * globals.launcher.targetRPM + globals.launcher.ks);
+                l1.set(launchPower + globals.launcher.kv * globals.tuning.targetRPM + globals.launcher.ks);
+                l2.set(launchPower + globals.launcher.kv * globals.tuning.targetRPM + globals.launcher.ks);
             }
         } else {
             l1.set(0);

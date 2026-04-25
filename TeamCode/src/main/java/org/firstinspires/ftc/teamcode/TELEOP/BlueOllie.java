@@ -196,7 +196,7 @@ public class BlueOllie extends OpMode {
         telemetry.addData("offset", offset);
         telemetry.addData("launch Mode", currentLaunchMode);
         TelemetryPacket ang = new TelemetryPacket();
-        ang.put("target", globals.launcher.targetRPM);
+        ang.put("target", globals.tuning.targetRPM);
 
         TelemetryPacket fang = new TelemetryPacket();
         fang.put("rpm", RPM);
@@ -397,7 +397,7 @@ public class BlueOllie extends OpMode {
                 } else if (!tagReady) {
                     camTimerReset = false;
                 }
-                if (tagReady && Math.abs(tagAng) > 1.5 && camTimer + 0.2 < timer.seconds() && follower.getAngularVelocity() < 0.5 && follower.getVelocity().getMagnitude() < 5) {
+                if (tagReady && Math.abs(tagAng) > 1.5 && camTimer + 0.1 < timer.seconds() && follower.getAngularVelocity() < 0.5 && follower.getVelocity().getMagnitude() < 5) {
                     if (robotZone.isInside(farLaunchZone)) {
                         offset -= globals.turret.camP * (tagAng + globals.turret.turretOffset);
                     } else {
@@ -521,7 +521,7 @@ public class BlueOllie extends OpMode {
             follower.setMaxPower(1);
         }
 
-        follower.setTeleOpDrive(leftY, -leftX, g1.getRightX(), true);
+        follower.setTeleOpDrive(leftY, -leftX, -g1.getRightX(), true);
 
     }
     public void RPM() {
