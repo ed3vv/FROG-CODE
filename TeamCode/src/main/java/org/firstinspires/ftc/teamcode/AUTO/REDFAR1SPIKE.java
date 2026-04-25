@@ -38,7 +38,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import java.util.List;
 
 @Autonomous
-public class BLUEFAR1SPIKE extends CommandOpMode {
+public class REDFAR1SPIKE extends CommandOpMode {
     private Follower follower;
     TelemetryData telemetryData = new TelemetryData(telemetry);
     private boolean scheduled = false;
@@ -221,9 +221,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
     public void buildpath(){
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(11.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -231,9 +230,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(11.000, 9.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -241,9 +239,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(41.000, 35.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(41.000, 35.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -251,9 +248,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(41.000, 35.000),
-
-                                new Pose(23.000, 35.000)
+                                new Pose(41.000, 35.000).mirror(),
+                                new Pose(23.000, 35.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -261,9 +257,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(23.000, 35.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(23.000, 35.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -271,9 +266,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(11.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -281,9 +275,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(11.000, 9.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -291,9 +284,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(11.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -301,9 +293,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(11.000, 9.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -311,9 +302,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(11.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -321,9 +311,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(11.000, 9.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -331,9 +320,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path12 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(11.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -341,9 +329,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path13 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(11.000, 9.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -351,9 +338,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path14 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(11.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -361,9 +347,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path15 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
+                                new Pose(11.000, 9.000).mirror(),
+                                new Pose(45.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -371,9 +356,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         Path16 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(36.000, 9.000)
+                                new Pose(45.000, 9.000).mirror(),
+                                new Pose(36.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -392,7 +376,7 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         //SET INITIAL POSITION AFTER HARDWARE CALIBRATION
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(45, 9, Math.toRadians(180)));//TODO
+        follower.setStartingPose(new Pose(45, 9, Math.toRadians(180)).mirror());//TODO
 
         IntakeSubsystem intakeSub = new IntakeSubsystem(hardwareMap);
         OuttakeSubsystem outtakeSub = new OuttakeSubsystem(hardwareMap, intakeSub);

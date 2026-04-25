@@ -402,7 +402,7 @@ public class BLUEFAR2SPIKE extends CommandOpMode {
 
         //SET INITIAL POSITION AFTER HARDWARE CALIBRATION
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(29, 129, Math.toRadians(180)));//TODO
+        follower.setStartingPose(new Pose(45, 9, Math.toRadians(180)));//TODO
 
         IntakeSubsystem intakeSub = new IntakeSubsystem(hardwareMap);
         OuttakeSubsystem outtakeSub = new OuttakeSubsystem(hardwareMap, intakeSub);
