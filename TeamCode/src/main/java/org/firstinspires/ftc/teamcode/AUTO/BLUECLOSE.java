@@ -45,7 +45,7 @@ public class BLUECLOSE extends CommandOpMode {
     TelemetryData telemetryData = new TelemetryData(telemetry);
     private boolean scheduled = false;
     private SequentialCommandGroup froggyroute;
-    public PathChain Path1, Path2, Path2half, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16;
+    public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16;
 
     private enum launchMode {
         PID,
@@ -131,7 +131,7 @@ public class BLUECLOSE extends CommandOpMode {
 
         private void launch() {
             boolean RPMDip = previousRPM - RPM > 150;
-            launchReady = (launchPIDF.atSetPoint()) && robotZone.isInside(closeLaunchZone) && RPM > 500 && !follower.isBusy();
+            launchReady = (launchPIDF.atSetPoint()) && robotZone.isInside(closeLaunchZone) && RPM > 500 && follower.getVelocity().getMagnitude() < 2;
 
             if (RPMDip) {
                 currentLaunchMode = launchMode.bang;
@@ -279,7 +279,7 @@ public class BLUECLOSE extends CommandOpMode {
     public void buildpath(){
         Path1 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(29.000, 129.000),
+                                new Pose(29.000, 128.000),
 
                                 new Pose(50.000, 90.000)
                         )
@@ -297,7 +297,7 @@ public class BLUECLOSE extends CommandOpMode {
 
                 .build();
 
-        Path2half = follower.pathBuilder().addPath(
+        Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(42.000, 60.000),
 
@@ -307,7 +307,7 @@ public class BLUECLOSE extends CommandOpMode {
 
                 .build();
 
-        Path3 = follower.pathBuilder().addPath(
+        Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(23.000, 60.000),
 
@@ -317,21 +317,11 @@ public class BLUECLOSE extends CommandOpMode {
 
                 .build();
 
-        Path4 = follower.pathBuilder().addPath(
+        Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(55.000, 77.000),
 
                                 new Pose(12.500, 60.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
-
-                .build();
-
-        Path5 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(12.500, 60.000),
-
-                                new Pose(55.000, 77.000)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(150))
 
@@ -339,16 +329,6 @@ public class BLUECLOSE extends CommandOpMode {
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.000, 77.000),
-
-                                new Pose(12.500, 60.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
-
-                .build();
-
-        Path7 = follower.pathBuilder().addPath(
-                        new BezierLine(
                                 new Pose(12.500, 60.000),
 
                                 new Pose(55.000, 77.000)
@@ -356,27 +336,27 @@ public class BLUECLOSE extends CommandOpMode {
                 ).setConstantHeadingInterpolation(Math.toRadians(150))
 
                 .build();
-        Path8 = follower.pathBuilder().addPath(
+        Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(55.000, 77.000),
 
                                 new Pose(12.500, 60.000)
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(150))
+
+                .build();
+
+        Path8 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(12.500, 60.000),
+
+                                new Pose(55.000, 77.000)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(150))
 
                 .build();
 
         Path9 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(12.500, 60.000),
-
-                                new Pose(55.000, 77.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
-
-                .build();
-
-        Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(55.000, 77.000),
 
@@ -393,7 +373,7 @@ public class BLUECLOSE extends CommandOpMode {
 
                 .build();
 
-        Path11 = follower.pathBuilder().addPath(
+        Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(23.000, 84.000),
 
@@ -403,7 +383,7 @@ public class BLUECLOSE extends CommandOpMode {
 
                 .build();
 
-        Path12 = follower.pathBuilder().addPath(
+        Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(45.000, 84.000),
 
@@ -412,7 +392,7 @@ public class BLUECLOSE extends CommandOpMode {
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        Path13 = follower.pathBuilder().addPath(
+        Path12 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(42.000, 35.400),
 
@@ -422,11 +402,11 @@ public class BLUECLOSE extends CommandOpMode {
 
                 .build();
 
-        Path14 = follower.pathBuilder().addPath(
+        Path13 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(23.000, 35.400),
 
-                                new Pose(58.000, 106.000)
+                                new Pose(58.000, 110.000)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -445,7 +425,7 @@ public class BLUECLOSE extends CommandOpMode {
 
         //SET INITIAL POSITION AFTER HARDWARE CALIBRATION
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(29, 129, Math.toRadians(180)));//TODO
+        follower.setStartingPose(new Pose(29, 128, Math.toRadians(180)));//TODO 129
 
         IntakeSubsystem intakeSub = new IntakeSubsystem(hardwareMap);
         OuttakeSubsystem outtakeSub = new OuttakeSubsystem(hardwareMap, intakeSub);
@@ -462,79 +442,65 @@ public class BLUECLOSE extends CommandOpMode {
                         ),
                         new outtakecommand(outtakeSub)
                 ),
-                new FollowPathCommand(follower, Path2, false),
+               new FollowPathCommand(follower, Path2, false),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path2half),
+                        new FollowPathCommand(follower, Path3),
                         new intakecommand(intakeSub)
-                ),
-                new ParallelDeadlineGroup(
-                        new SequentialCommandGroup(
-                                new FollowPathCommand(follower, Path3),
-                                new WaitCommand(700)
-                        ),
-                        new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path4),
-                                new WaitCommand(500)
+                                new WaitCommand(700)
                         ),
-                        new intakecommand(intakeSub)
+                        new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path5),
-                                new WaitCommand(700)
+                                new WaitCommand(1200)
                         ),
-                        new outtakecommand(outtakeSub)
+                        new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path6),
-                                new WaitCommand(1000)
+                                new WaitCommand(700)
                         ),
-                        new intakecommand(intakeSub)
+                        new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path7),
-                                new WaitCommand(700)
+                                new WaitCommand(1500)
                         ),
-                        new outtakecommand(outtakeSub)
+                        new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path8),
-                                new WaitCommand(1000)
-                        ),
-                        new intakecommand(intakeSub)
-                ),
-                new ParallelDeadlineGroup(
-                        new SequentialCommandGroup(
-                                new FollowPathCommand(follower, Path9),
                                 new WaitCommand(700)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path10),
+                        new FollowPathCommand(follower, Path9),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
-                                new FollowPathCommand(follower, Path11),
+                                new FollowPathCommand(follower, Path10),
                                 new WaitCommand(700)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
-                new FollowPathCommand(follower, Path12),
+                new FollowPathCommand(follower, Path11),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path13),
+                        new FollowPathCommand(follower, Path12),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
-                                new FollowPathCommand(follower, Path14),
+                                new FollowPathCommand(follower, Path13),
                                 new WaitCommand(700)
                         ),
                         new outtakecommand(outtakeSub)
