@@ -141,7 +141,7 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
             launchPIDF.setSetPoint(targetRPM);
             launchPower = launchPIDF.calculate(RPM);
 
-            double set = MathFunctions.clamp((180 - (78 * 1.054)), 25, 335);//253
+            double set = MathFunctions.clamp((180 - (77 * 1.054)), 25, 335);//253
             turret1.set(set);
             turret2.set(set);
 
@@ -453,7 +453,7 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path2),
-                                new WaitCommand(1500)
+                                new WaitCommand(1100)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
@@ -465,51 +465,63 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path5),
-                                new WaitCommand(1500)
+                                new WaitCommand(1100)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path6),
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path6),
+                                new WaitCommand(300)
+                        ),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path7),
-                                new WaitCommand(1500)
+                                new WaitCommand(1100)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path8),
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path8),
+                                new WaitCommand(300)
+                        ),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path9),
-                                new WaitCommand(1500)
+                                new WaitCommand(1100)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path10),
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path10),
+                                new WaitCommand(300)
+                        ),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path11),
-                                new WaitCommand(1500)
+                                new WaitCommand(1100)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path12),
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path12),
+                                new WaitCommand(300)
+                        ),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path13),
-                                new WaitCommand(1500)
+                                new WaitCommand(1100)
                         ),
                         new outtakecommand(outtakeSub)
                 ),
