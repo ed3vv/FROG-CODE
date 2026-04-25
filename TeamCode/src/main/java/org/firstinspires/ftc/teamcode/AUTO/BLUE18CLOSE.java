@@ -219,7 +219,7 @@ public class BLUE18CLOSE extends CommandOpMode {
 
             if (deltaTime > 0.02) {
                 previousRPM = RPM;
-                double revs = deltaTicks / 28.0; // GoBILDA CPR
+                double revs = deltaTicks / 28.0; // GoBUILDA CPR
                 RPM = -(revs / deltaTime) * 60.0;
 
                 lastTime = currentTime;
