@@ -91,6 +91,10 @@ public class BLUEFAR0SPIKE extends CommandOpMode {
             intake.set(1);
             transfer.set(1);
         }
+
+        public void gateclose() {
+            gate.set(globals.gate.close);
+        }
     }
 
     public class OuttakeSubsystem extends SubsystemBase {
@@ -138,7 +142,7 @@ public class BLUEFAR0SPIKE extends CommandOpMode {
             launchPIDF.setSetPoint(targetRPM);
             launchPower = launchPIDF.calculate(RPM);
 
-            double set = MathFunctions.clamp((180 - (253 * 1.054)), 25, 335);//253
+            double set = MathFunctions.clamp((180 - (78 * 1.054)), 25, 335);//253
             turret1.set(set);
             turret2.set(set);
 
@@ -163,8 +167,9 @@ public class BLUEFAR0SPIKE extends CommandOpMode {
 
         public void launcheroff(){
             currentLaunchMode = launchMode.PID;
-            launcher2.set(0.6);
-            launcher1.set(0.6);
+            launcher2.set(0.7);
+            launcher1.set(0.7);
+            intakeSub.gateclose();
         }
 
         public void RPM() {
@@ -454,7 +459,85 @@ public class BLUEFAR0SPIKE extends CommandOpMode {
                                 new WaitCommand(500)
                         ),
                         new intakecommand(intakeSub)
-                )
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path2),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+//                new ParallelDeadlineGroup(
+//                        new FollowPathCommand(follower, Path3),
+//                        new intakecommand(intakeSub)
+//                ),
+
+                new SequentialCommandGroup(
+                        new FollowPathCommand(follower, Path3),
+                        new ParallelDeadlineGroup(
+                                new FollowPathCommand(follower, Path4),
+                                    ),
+                        new FollowPathCommand(follower, Path4),
+                        new WaitCommand(1500)
+                ),
+                new outtakecommand(outtakeSub),
+
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path5),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path6),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path7),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path8),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path9),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path10),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path11),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path12),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path13),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path14),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new FollowPathCommand(follower, Path15)
         );
     }
 
