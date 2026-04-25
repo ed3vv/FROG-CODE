@@ -395,6 +395,7 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
                 .build();
 
+
         Path13 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(11.000, 9.000),
@@ -406,26 +407,6 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
                 .build();
 
         Path14 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(45.000, 9.000),
-
-                                new Pose(11.000, 9.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-
-                .build();
-
-        Path15 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(11.000, 9.000),
-
-                                new Pose(45.000, 9.000)
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-
-                .build();
-
-        Path16 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(45.000, 9.000),
 
@@ -458,27 +439,81 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
 
         //AUTONOMOUS ROUTINE.
         froggyroute = new SequentialCommandGroup(
-                new FollowPathCommand(follower, Path1),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path2, false),
-                new FollowPathCommand(follower, Path2half),
+                new ParallelDeadlineGroup(
+                        new WaitCommand(3000),
+                    new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path1),
+                                new WaitCommand(500)
+                        ),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path2),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
                 new FollowPathCommand(follower, Path3),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path4),
-                new FollowPathCommand(follower, Path5),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path6),
-                new FollowPathCommand(follower, Path7),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path8),
-                new FollowPathCommand(follower, Path9),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path10),
-                new FollowPathCommand(follower, Path11),
-                new WaitCommand(1500),
-                new FollowPathCommand(follower, Path12),
-                new FollowPathCommand(follower, Path13),
-                new WaitCommand(1500)
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path4),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path5),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path6),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path7),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path8),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path9),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path10),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path11),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new FollowPathCommand(follower, Path12),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path13),
+                                new WaitCommand(1500)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new FollowPathCommand(follower, Path14)
         );
     }
 
