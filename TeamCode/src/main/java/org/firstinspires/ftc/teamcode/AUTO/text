@@ -1,0 +1,15 @@
+Path2 = follower.pathBuilder().addPath(
+//                        new BezierLine(
+//                                new Pose(50.000, 90.000),
+//
+//                                new Pose(42.000, 60.000)
+//                        )
+//                ).setConstantHeadingInterpolation(Math.toRadians(180))
+//                .addPath(
+//                        new BezierLine(
+//                                new Pose(42.000, 60.000),
+//
+//                                new Pose(23.000, 60.000)
+//                        )
+//                ).setConstantHeadingInterpolation(Math.toRadians(180))
+//                .build();
