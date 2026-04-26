@@ -281,7 +281,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(11.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -291,7 +291,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(45.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -301,7 +301,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(42.000, 35.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -311,7 +311,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(23.000, 35.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -321,7 +321,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(45.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -331,7 +331,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(42.000, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -341,7 +341,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(23.000, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -351,7 +351,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(45.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -361,7 +361,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(11.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -371,7 +371,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(45.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -381,7 +381,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(11.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -391,7 +391,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(45.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -401,7 +401,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(11.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -411,7 +411,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(45.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -421,7 +421,7 @@ public class REDFAR2SPIKE extends CommandOpMode {
 
                                 new Pose(33.000, 9.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
     }

@@ -284,7 +284,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path2 = follower.pathBuilder()
@@ -294,7 +294,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path3 = follower.pathBuilder()
@@ -304,7 +304,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path4 = follower.pathBuilder()
@@ -314,7 +314,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path5 = follower.pathBuilder()
@@ -324,7 +324,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path6 = follower.pathBuilder()
@@ -334,7 +334,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path7 = follower.pathBuilder()
@@ -344,7 +344,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path8 = follower.pathBuilder()
@@ -354,7 +354,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path9 = follower.pathBuilder()
@@ -364,7 +364,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path10 = follower.pathBuilder()
@@ -374,7 +374,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path11 = follower.pathBuilder()
@@ -384,7 +384,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path12 = follower.pathBuilder()
@@ -394,7 +394,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path13 = follower.pathBuilder()
@@ -404,7 +404,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(11.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path14 = follower.pathBuilder()
@@ -414,7 +414,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(45.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path15 = follower.pathBuilder()
@@ -424,7 +424,7 @@ public class REDFAR0SPIKE extends CommandOpMode {
                                 new Pose(33.000, 9.000).mirror()
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
     }
 
