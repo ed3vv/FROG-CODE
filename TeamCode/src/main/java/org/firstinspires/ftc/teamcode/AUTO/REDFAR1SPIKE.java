@@ -296,28 +296,20 @@ public class REDFAR1SPIKE extends CommandOpMode {
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
-                        new BezierLine(
+                        new BezierCurve(
                                 new Pose(45.000, 9.000).mirror(),
-
-                                new Pose(41.000, 35.000).mirror()
+                                new Pose(41.000, 38.000).mirror(),
+                                new Pose(23.000, 36.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
-        Path4 = follower.pathBuilder().addPath(
-                        new BezierLine(
-                                new Pose(41.000, 35.000).mirror(),
 
-                                new Pose(23.000, 35.000).mirror()
-                        )
-                ).setConstantHeadingInterpolation(Math.toRadians(0))
-
-                .build();
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(23.000, 35.000).mirror(),
+                                new Pose(23.000, 36.000).mirror(),
 
                                 new Pose(45.000, 9.000).mirror()
                         )
@@ -410,6 +402,26 @@ public class REDFAR1SPIKE extends CommandOpMode {
                         new BezierLine(
                                 new Pose(45.000, 9.000).mirror(),
 
+                                new Pose(11.000, 9.000).mirror()
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
+                .build();
+
+        Path15 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(11.000, 9.000).mirror(),
+
+                                new Pose(45.000, 9.000).mirror()
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+
+                .build();
+
+        Path16 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(45.000, 9.000).mirror(),
+
                                 new Pose(36.000, 9.000).mirror()
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
@@ -418,7 +430,7 @@ public class REDFAR1SPIKE extends CommandOpMode {
     }
 
     @Override
-    public void initialize() {
+    public void initialize() /*initialize.*/{
         //PINPOINT INITIALIZATION, CALIBRATES OUR HARDWARE BEFORE RUNNING
         GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.resetPosAndIMU();
@@ -459,16 +471,15 @@ public class REDFAR1SPIKE extends CommandOpMode {
                         ),
                         new outtakecommand(outtakeSub)
                 ),
-                new FollowPathCommand(follower, Path3),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path4),
+                        new FollowPathCommand(follower, Path3),
                         new intakecommand(intakeSub)
-                ),
+                ), //intake spike
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
                                 new FollowPathCommand(follower, Path5),
                                 new WaitCommand(1100)
-                        ),
+                        ), //go to far zone
                         new outtakecommand(outtakeSub)
                 ),
                 new ParallelDeadlineGroup(
@@ -527,7 +538,21 @@ public class REDFAR1SPIKE extends CommandOpMode {
                         ),
                         new outtakecommand(outtakeSub)
                 ),
-                new FollowPathCommand(follower, Path14)
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path14),
+                                new WaitCommand(300)
+                        ),
+                        new intakecommand(intakeSub)
+                ),
+                new ParallelDeadlineGroup(
+                        new SequentialCommandGroup(
+                                new FollowPathCommand(follower, Path15),
+                                new WaitCommand(1100)
+                        ),
+                        new outtakecommand(outtakeSub)
+                ),
+                new FollowPathCommand(follower, Path16)
         );
     }
 
