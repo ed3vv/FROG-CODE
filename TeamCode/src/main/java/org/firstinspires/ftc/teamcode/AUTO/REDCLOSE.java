@@ -283,7 +283,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(50.000, 90.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -293,7 +293,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(42.000, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -303,7 +303,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(23.000, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -313,7 +313,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(55.000, 77.000).mirror()
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
+                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(30))
 
                 .build();
 
@@ -323,7 +323,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(12.500, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(30))
 
                 .build();
 
@@ -333,7 +333,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(55.000, 77.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(30))
 
                 .build();
         Path7 = follower.pathBuilder().addPath(
@@ -342,7 +342,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(12.500, 60.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(30))
 
                 .build();
 
@@ -352,7 +352,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(55.000, 77.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(150))
+                ).setConstantHeadingInterpolation(Math.toRadians(30))
 
                 .build();
 
@@ -362,14 +362,14 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(42.000, 84.000).mirror()
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))
+                ).setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(0))
                 .addPath(
                         new BezierLine(
                                 new Pose(42.000, 84.000).mirror(),
 
                                 new Pose(23.000, 84.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -379,7 +379,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(45.000, 84.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -389,7 +389,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(42.000, 35.400).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
                 .build();
 
         Path12 = follower.pathBuilder().addPath(
@@ -398,7 +398,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(23.000, 35.400).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -408,7 +408,7 @@ public class REDCLOSE extends CommandOpMode {
 
                                 new Pose(58.000, 110.000).mirror()
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
     }
