@@ -296,10 +296,10 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
-                        new BezierLine(
+                        new BezierCurve(
                                 new Pose(45.000, 9.000),
-
-                                new Pose(41.000, 35.000)
+                                new Pose(41.000, 38.000),
+                                new Pose(23.000, 36.000)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -457,9 +457,8 @@ public class BLUEFAR1SPIKE extends CommandOpMode {
                         ),
                         new outtakecommand(outtakeSub)
                 ),
-                new FollowPathCommand(follower, Path3),
                 new ParallelDeadlineGroup(
-                        new FollowPathCommand(follower, Path4),
+                        new FollowPathCommand(follower, Path3),
                         new intakecommand(intakeSub)
                 ),
                 new ParallelDeadlineGroup(
